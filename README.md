@@ -83,7 +83,7 @@ git push -u origin main
 
 ### 🔁 8. Recommended VS Code Extensions
 
-## To improve your dev experience:
+### To improve your dev experience:
 
 - Shopify Liquid – syntax highlighting for Liquid.
 - Tailwind CSS IntelliSense – if your theme uses Tailwind.
