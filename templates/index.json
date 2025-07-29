@@ -402,11 +402,21 @@
       ],
       "name": "Parallax Slider",
       "settings": {}
+    },
+    "custom_carousel_wxPyNi": {
+      "type": "custom-carousel",
+      "name": "Custom Carousel",
+      "settings": {
+        "heading": "featured products",
+        "collection": "best-selling",
+        "limit": 12
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
     "product_list_qU3bEB",
-    "parallax_slider_RVwJ4g"
+    "parallax_slider_RVwJ4g",
+    "custom_carousel_wxPyNi"
   ]
 }
