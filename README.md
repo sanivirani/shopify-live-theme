@@ -24,3 +24,9 @@ A full development setup to:
 ```bash
 shopify login --store your-store-name.myshopify.com
 shopify theme pull
+
+### 🔁 1. Clone or Pull Theme from Shopify
+
+```bash
+shopify login --store your-store-name.myshopify.com
+shopify theme pull
