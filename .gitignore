@@ -1,0 +1,25 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Shopify CLI theme settings
+.shopify/
+.env
+*.env
+
+# MacOS system files
+.DS_Store
+
+# VS Code config
+.vscode/
+
+# Theme Check configuration cache
+tmp/
+
+# Logs
+*.log
+
+# Theme export zips (if you export theme via zip)
+*.zip
