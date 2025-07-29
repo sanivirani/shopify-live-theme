@@ -1,0 +1,253 @@
+{% schema %}
+{
+  "name": "Product Carousel",
+  "settings": [
+    { "type": "text", "id": "title_1", "label": "Tab 1 — Title", "default": "You may also like" },
+    { "type": "text", "id": "title_2", "label": "Tab 2 — Title", "default": "Recently viewed" },
+    { "type": "collection", "id": "collection_handle", "label": "Collection for Tab 1" }
+  ],
+  "presets": [
+    { "name": "Product Carousel", "category": "Custom" }
+  ]
+}
+{% endschema %}
+
+<!-- Slick Slider Styles from CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
+
+<div class="product-carousel-section">
+  <div class="tabs">
+    <button class="carousel-tab active" data-tab="recommended">{{ section.settings.title_1 }}</button>
+    <button class="carousel-tab" data-tab="recent">{{ section.settings.title_2 }}</button>
+  </div>
+
+  <div class="carousel-wrapper active" id="carousel-recommended">
+    <div class="carousel-track">
+      {% if section.settings.collection_handle != blank %}
+        {% assign products = collections[section.settings.collection_handle].products %}
+        {% for product in products limit: 10 %}
+          <div class="carousel-card">
+            <a href="{{ product.url }}">
+              <img src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+              <div class="product-title">{{ product.title }}</div>
+              <div class="product-price">
+                <span class="price">{{ product.price | money }}</span>
+                {% if product.compare_at_price > product.price %}
+                  <span class="compare-price">{{ product.compare_at_price | money }}</span>
+                {% endif %}
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="carousel-wrapper" id="carousel-recent">
+    <div class="carousel-track">
+      <p class="empty-message">Your recently viewed products will appear here.</p>
+    </div>
+  </div>
+
+  <button class="carousel-nav prev">←</button>
+  <button class="carousel-nav next">→</button>
+</div>
+
+<!-- Slick JS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tabs = document.querySelectorAll('.carousel-tab');
+  const wrappers = document.querySelectorAll('.carousel-wrapper');
+
+  // Tab switching logic
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      wrappers.forEach(w => w.classList.remove('active'));
+      tab.classList.add('active');
+      const target = document.getElementById('carousel-' + tab.dataset.tab);
+      target.classList.add('active');
+    });
+  });
+
+  // Slick initialization for all .carousel-track
+  $('.carousel-wrapper .carousel-track').each(function() {
+    if ($(this).find('.carousel-card').length > 1) {
+      $(this).slick({
+        infinite: false,
+        slidesToShow: 4,
+        slidesToScroll: 1,
+        arrows: true,
+        prevArrow: $('.carousel-nav.prev'),
+        nextArrow: $('.carousel-nav.next'),
+        responsive: [
+          {
+            breakpoint: 1200,
+            settings: {
+              slidesToShow: 3
+            }
+          },
+          {
+            breakpoint: 768,
+            settings: {
+              slidesToShow: 2
+            }
+          },
+          {
+            breakpoint: 480,
+            settings: {
+              slidesToShow: 1
+            }
+          }
+        ]
+      });
+    }
+  });
+});
+</script>
+
+{% style %}
+.product-carousel-section {
+  position: relative;
+  padding: 4rem 14rem;
+  background: #fff5f7;
+}
+
+.product-carousel-section .tabs {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.product-carousel-section .carousel-tab {
+  font-family: 'Gowun Batang', serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 32px;
+  letter-spacing: -0.4px;
+  text-transform: lowercase;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-bottom: 2px solid transparent;
+  color: #555;
+}
+
+.product-carousel-section .carousel-tab.active {
+  color: #000;
+  border-color: #a41d33;
+}
+
+.product-carousel-section .carousel-wrapper {
+  display: none;
+}
+
+.product-carousel-section .carousel-wrapper.active {
+  display: block;
+}
+
+.product-carousel-section .carousel-track {
+  display: block;
+   margin: 0 -5px; /* half of 10px gap on each side */
+}
+
+.product-carousel-section .carousel-card {
+  box-sizing: border-box;
+  /* width: 368px; */
+  background: #fff;
+  border-radius: 8px;
+  display: flex !important;
+  flex-direction: column;
+  gap: 12px !important;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.product-carousel-section .carousel-card img {
+  /* width: 289px; */
+  height: 400px;
+  object-fit: cover;
+  display: block;
+}
+
+.product-carousel-section .product-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 28px;
+  color: #333;
+  margin: 0;
+}
+
+.product-carousel-section .product-price .price {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 22px;
+  color: #111;
+}
+
+.product-carousel-section .product-price .compare-price {
+  margin-left: 0.5rem;
+  text-decoration: line-through;
+  color: #999;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.product-carousel-section .carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #6e0f1c;
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.product-carousel-section .carousel-nav.prev {
+  left: 170px;
+}
+
+.product-carousel-section .carousel-nav.next {
+  right: 170px;
+}
+
+.product-carousel-section .empty-message {
+  padding: 2rem;
+  color: #777;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .product-carousel-section {
+    padding: 2rem;
+  }
+
+  .product-carousel-section .carousel-card {
+    min-width: 200px;
+    width: 200px;
+    height: auto;
+  }
+
+  .product-carousel-section .carousel-tab {
+    font-size: 0.9rem;
+  }
+
+  .product-carousel-section .carousel-nav.prev {
+    left: 10px;
+  }
+
+  .product-carousel-section .carousel-nav.next {
+    right: 10px;
+  }
+}
+{% endstyle %}

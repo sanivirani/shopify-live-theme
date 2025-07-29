@@ -1,0 +1,470 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "hero_jVaWmY": {
+      "type": "hero",
+      "blocks": {
+        "text_YLPk4p": {
+          "type": "text",
+          "name": "t:names.heading",
+          "settings": {
+            "text": "<h2>New arrivals</h2>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h1",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "button_H9gpTf": {
+          "type": "button",
+          "name": "t:names.button",
+          "settings": {
+            "label": "Shop now",
+            "link": "shopify://products/the-fatty",
+            "open_in_new_tab": false,
+            "style_class": "button-secondary",
+            "width": "fit-content",
+            "custom_width": 100,
+            "width_mobile": "fit-content",
+            "custom_width_mobile": 100
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_YLPk4p",
+        "button_H9gpTf"
+      ],
+      "name": "t:names.hero",
+      "settings": {
+        "link": "",
+        "open_in_new_tab": false,
+        "media_type_1": "image",
+        "image_1": "shopify://shop_images/makeup-powders-and-brush.jpg",
+        "media_type_2": "image",
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "space-between",
+        "vertical_alignment": "flex-end",
+        "align_baseline": true,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "flex-end",
+        "gap": 20,
+        "section_width": "page-width",
+        "section_height": "small",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-6",
+        "toggle_overlay": true,
+        "overlay_color": "#00000014",
+        "overlay_style": "gradient",
+        "gradient_direction": "to bottom",
+        "blurred_reflection": false,
+        "reflection_opacity": 75,
+        "padding-block-start": 100,
+        "padding-block-end": 48
+      }
+    },
+    "product_list_qU3bEB": {
+      "type": "product-list",
+      "blocks": {
+        "static-header": {
+          "type": "_product-list-content",
+          "disabled": true,
+          "static": true,
+          "settings": {
+            "content_direction": "row",
+            "vertical_on_mobile": true,
+            "horizontal_alignment": "space-between",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "product_list_text_qLCTNF": {
+              "type": "_product-list-text",
+              "name": "t:names.collection_title",
+              "settings": {
+                "text": "<h3>{{ closest.collection.title }}</h3>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "product_list_button_N8pfAg": {
+              "type": "_product-list-button",
+              "name": "t:names.product_list_button",
+              "settings": {
+                "label": "View all",
+                "open_in_new_tab": false,
+                "style_class": "button-secondary",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "product_list_text_qLCTNF",
+            "product_list_button_N8pfAg"
+          ]
+        },
+        "static-product-card": {
+          "type": "_product-card",
+          "name": "t:names.product_card",
+          "static": true,
+          "settings": {
+            "product_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "product_card_gallery_JgqDGj": {
+              "type": "_product-card-gallery",
+              "name": "t:names.product_card_media",
+              "settings": {
+                "image_ratio": "portrait",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_7VTJcC": {
+              "type": "_product-card-group",
+              "name": "t:names.group",
+              "settings": {
+                "link": "",
+                "open_in_new_tab": false,
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 4,
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "product_title_dMgTDL": {
+                  "type": "product-title",
+                  "name": "t:names.product_title",
+                  "settings": {
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "rte",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "color": "var(--color-foreground)",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "price_h6P4AF": {
+                  "type": "price",
+                  "name": "t:names.product_price",
+                  "settings": {
+                    "show_sale_price_first": true,
+                    "show_installments": false,
+                    "show_tax_info": false,
+                    "type_preset": "h6",
+                    "width": "100%",
+                    "alignment": "left",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "color": "var(--color-foreground)",
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "swatches_k9YMgz": {
+                  "type": "swatches",
+                  "name": "t:names.swatches",
+                  "settings": {
+                    "product_swatches_alignment": "flex-start",
+                    "product_swatches_alignment_mobile": "flex-start",
+                    "hide_padding": false,
+                    "product_swatches_padding_top": 4,
+                    "product_swatches_padding_bottom": 0,
+                    "product_swatches_padding_left": 0,
+                    "product_swatches_padding_right": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "product_title_dMgTDL",
+                "price_h6P4AF",
+                "swatches_k9YMgz"
+              ]
+            }
+          },
+          "block_order": [
+            "product_card_gallery_JgqDGj",
+            "group_7VTJcC"
+          ]
+        }
+      },
+      "name": "Product list",
+      "settings": {
+        "collection": "all",
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "max_products": 8,
+        "columns": 4,
+        "mobile_columns": "2",
+        "columns_gap": 12,
+        "rows_gap": 24,
+        "icons_style": "arrow",
+        "icons_shape": "none",
+        "section_width": "page-width",
+        "horizontal_alignment": "center",
+        "gap": 40,
+        "color_scheme": "scheme-1",
+        "padding-block-start": 48,
+        "padding-block-end": 96
+      }
+    },
+    "parallax_slider_RVwJ4g": {
+      "type": "parallax-slider",
+      "blocks": {
+        "slide_igBJw7": {
+          "type": "slide",
+          "settings": {
+            "background_image": "shopify://shop_images/working-at-night.jpg",
+            "heading": "Innovative Electronics",
+            "subheading": "Experience the future of tech — smart, sleek, and built to last. Discover our best-selling gadgets and gear.",
+            "button_text": "Shop Now",
+            "button_url": "shopify://collections/electronics"
+          }
+        },
+        "slide_Ey6HDB": {
+          "type": "slide",
+          "settings": {
+            "background_image": "shopify://shop_images/wrist-watches.jpg",
+            "heading": "Timeless Watches",
+            "subheading": "Luxury meets precision. Explore classic and smart watches for every style and occasion.",
+            "button_text": "Shop Now",
+            "button_url": "shopify://collections/outlet"
+          }
+        },
+        "slide_9zFitX": {
+          "type": "slide",
+          "settings": {
+            "background_image": "shopify://shop_images/coffee-s-ready.jpg",
+            "heading": "Handcrafted Ceramics",
+            "subheading": "Elevate your space with artisan-made ceramic décor and kitchenware — where beauty meets function.",
+            "button_text": "Shop Now",
+            "button_url": "shopify://collections/best-selling"
+          }
+        },
+        "slide_TxJRAF": {
+          "type": "slide",
+          "settings": {
+            "background_image": "shopify://shop_images/makeup-powders-and-brush.jpg",
+            "heading": "Clean Beauty Essentials",
+            "subheading": "Glow naturally with our premium skincare and cosmetic range — cruelty-free and skin-loving formulas.",
+            "button_text": "Shop Now",
+            "button_url": "shopify://products/the-fatty"
+          }
+        },
+        "slide_YCBJYN": {
+          "type": "slide",
+          "settings": {
+            "background_image": "shopify://shop_images/240_F_903743372_yy6ST2I1l6VC6FDCBvt1OiMf0A8kY6DD.jpg",
+            "heading": "Shop the Full Collection",
+            "subheading": "From innovation to elegance — browse our complete range of lifestyle products curated for you.",
+            "button_text": "Shop Now",
+            "button_url": "shopify://collections"
+          }
+        }
+      },
+      "block_order": [
+        "slide_igBJw7",
+        "slide_Ey6HDB",
+        "slide_9zFitX",
+        "slide_TxJRAF",
+        "slide_YCBJYN"
+      ],
+      "name": "Parallax Slider",
+      "settings": {}
+    },
+    "fancybox_gallery_cAWk7F": {
+      "type": "fancybox-gallery",
+      "blocks": {
+        "image_block_7GBTNQ": {
+          "type": "image_block",
+          "settings": {
+            "image": "shopify://shop_images/mobile-phone-and-gimbal-in-hand.jpg",
+            "caption": "Gallery Image"
+          }
+        },
+        "image_block_HQDwne": {
+          "type": "image_block",
+          "settings": {
+            "image": "shopify://shop_images/download_1.jpg",
+            "caption": "Gallery Image"
+          }
+        },
+        "image_block_bCQnde": {
+          "type": "image_block",
+          "settings": {
+            "image": "shopify://shop_images/hand-about-to-pour-stove-top-coffee.jpg",
+            "caption": "Gallery Image"
+          }
+        },
+        "image_block_TDMtXi": {
+          "type": "image_block",
+          "settings": {
+            "image": "shopify://shop_images/house-plant-in-white-pot.jpg",
+            "caption": "Gallery Image"
+          }
+        },
+        "image_block_VTyPf7": {
+          "type": "image_block",
+          "settings": {
+            "image": "shopify://shop_images/portrait-of-illuminated-laptop.jpg",
+            "caption": "Gallery Image"
+          }
+        },
+        "image_block_GVdRDc": {
+          "type": "image_block",
+          "settings": {
+            "image": "shopify://shop_images/240_F_903743372_yy6ST2I1l6VC6FDCBvt1OiMf0A8kY6DD.jpg",
+            "caption": "Gallery Image"
+          }
+        }
+      },
+      "block_order": [
+        "image_block_7GBTNQ",
+        "image_block_HQDwne",
+        "image_block_bCQnde",
+        "image_block_TDMtXi",
+        "image_block_VTyPf7",
+        "image_block_GVdRDc"
+      ],
+      "name": "Fancybox Gallery",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero_jVaWmY",
+    "product_list_qU3bEB",
+    "parallax_slider_RVwJ4g",
+    "fancybox_gallery_cAWk7F"
+  ]
+}

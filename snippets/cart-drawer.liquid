@@ -1,0 +1,381 @@
+{%- doc -%}
+  Renders the cart drawer, a slide-out panel that displays the contents of the cart. It includes the cart icon that acts as a trigger.
+
+  @param {object} [settings] - An object containing theme settings.
+
+  @param {boolean} [settings.auto_open_cart_drawer] - If `true`, the cart drawer opens automatically after an item is
+  added.
+  @param {string} [settings.drawer_color_scheme] - The color scheme for the drawer.
+{%- enddoc -%}
+
+<script
+  src="{{ 'cart-drawer.js' | asset_url }}"
+  type="module"
+></script>
+
+<cart-drawer-component
+  class="cart-drawer"
+  {{ block.shopify_attributes }}
+  {% if settings.auto_open_cart_drawer %}
+    auto-open
+  {% endif %}
+>
+  <button
+    class="button header-actions__action button-unstyled"
+    on:click="/open"
+    aria-label="{{ 'accessibility.open_cart_drawer' | t }} {{ 'accessibility.cart_count' | t}}: {{ cart.item_count }}"
+  >
+    {% render 'cart-icon-component' %}
+  </button>
+
+  <dialog
+    ref="dialog"
+    class="cart-drawer__dialog dialog-modal dialog-drawer color-{{ settings.drawer_color_scheme }}{% if cart.empty? %} cart-drawer--empty{%endif%}"
+    scroll-lock
+  >
+    <div class="cart-drawer__inner">
+      <cart-items-component
+        class="cart-items-component"
+        data-section-id="{{ section.id }}"
+      >
+        {% if cart.empty? %}
+          <div class="cart-drawer__header">
+            <button
+              ref="closeButton"
+              on:click="cart-drawer-component/close"
+              class="button cart-drawer__close-button button-unstyled"
+              aria-label="{{ 'actions.close_dialog' | t }}"
+            >
+              <span class="svg-wrapper">
+                {{ 'icon-close.svg' | inline_asset_content }}
+              </span>
+            </button>
+          </div>
+
+          <div class="cart-drawer__content motion-reduce" aria-label="{{ 'accessibility.cart' | t }}">
+            <span class="cart-drawer__heading h3 cart-drawer__heading--empty">
+              {{ 'content.your_cart_is_empty' | t }}
+            </span>
+            <div class="cart-drawer__items">
+              {% render 'cart-products' %}
+            </div>
+          </div>
+        {% else %}
+          <div class="cart-drawer__header" id="cart-drawer-header">
+            <span class="cart-drawer__heading h3">
+              {{ 'content.cart_title' | t }}
+              {% render 'cart-bubble' %}
+            </span>
+            <button
+              ref="closeButton"
+              on:click="cart-drawer-component/close"
+              class="button cart-drawer__close-button button-unstyled"
+              aria-label="{{ 'actions.close_dialog' | t }}"
+            >
+              <span class="svg-wrapper">
+                {{ 'icon-close.svg' | inline_asset_content }}
+              </span>
+            </button>
+          </div>
+
+          <div
+            class="cart-drawer__content motion-reduce"
+            aria-label="{{ 'accessibility.cart' | t }}"
+            style="--header-height: 60px;"
+          >
+            <scroll-hint class="cart-drawer__items">
+              <!--CUSTOM SHIPPING CALCULATOR -->
+              {% render 'estimate-shipping' %}
+              <!-- END SHIPPING CALCULATOR -->
+
+              {% render 'cart-products' %}
+            </scroll-hint>
+
+            <div class="cart-drawer__summary">
+              {% render 'cart-summary' %}
+            </div>
+          </div>
+        {% endif %}
+      </cart-items-component>
+    </div>
+  </dialog>
+</cart-drawer-component>
+
+<div id="toast-container" class="toast-container hidden">
+  <div class="toast-message">Product added to cart successfully!</div>
+</div>
+
+{% stylesheet %}
+          .cart-items-component {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+          }
+
+          .cart-drawer__heading .cart-bubble {
+            width: fit-content;
+            border-radius: var(--style-border-radius-buttons-primary);
+            aspect-ratio: auto;
+            padding: var(--cart-padding);
+          }
+
+          .cart-drawer__heading .cart-bubble[data-maintain-ratio] {
+            aspect-ratio: 1;
+            min-width: 26px;
+          }
+
+          .cart-drawer__header {
+            background-color: var(--color-background);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: var(--cart-drawer-padding);
+            border-bottom: var(--style-border-width) solid none;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+
+            @media screen and (min-width: 750px) {
+              padding: var(--cart-drawer-padding-desktop);
+            }
+          }
+
+          .cart-drawer__dialog {
+            overflow: hidden;
+          }
+
+          .cart-drawer__inner {
+            height: 100%;
+            overflow: hidden;
+          }
+
+          .cart-drawer__content {
+            height: calc(100% - var(--header-height));
+            display: flex;
+            flex-direction: column;
+          }
+
+          .cart-drawer__summary {
+            background-color: var(--color-background);
+            position: sticky;
+            bottom: 0;
+            z-index: 1;
+          }
+
+          .cart-goals-wrapper {
+          padding: 1.2rem;
+          background-color: #f9f9f9;
+          border-radius: 12px;
+          margin: 1.4rem;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+          font-size: 0.95rem;
+        }
+
+        .goal-block {
+          margin-bottom: 1.2rem;
+        }
+
+        .goal-title {
+          font-weight: 600;
+          margin-bottom: 0.3rem;
+        }
+
+        .goal-success {
+          color: #0a8754;
+          font-weight: 600;
+        }
+
+        .progress-bar {
+          width: 100%;
+          height: 6px;
+          background-color: #ddd;
+          border-radius: 4px;
+          overflow: hidden;
+          margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background-color: #000;
+          transition: width 0.3s ease;
+        }
+
+        .progress-fill.discount {
+          background-color: #ff6f00;
+        }
+
+
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #0a8754;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 9999;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, bottom 0.3s ease;
+    }
+
+    .toast-container.show {
+      opacity: 1;
+      pointer-events: auto;
+      bottom: 40px;
+    }
+
+    /* .shipping-estimate-bar {
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 1rem;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    color: #333;
+  } */
+{% endstylesheet %}
+
+<!--
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const toast = document.getElementById('toast-container');
+
+      // Detect fetch calls to cart.js
+      const originalFetch = window.fetch;
+      window.fetch = async (...args) => {
+        const response = await originalFetch(...args);
+
+        // Look for Shopify cart update/add endpoints
+        if (
+          args[0].includes('/cart/add') ||
+          args[0].includes('/cart/change') ||
+          args[0].includes('/cart/update')
+        ) {
+          response.clone().json().then(data => {
+            // Show toast only if item count increased
+            if (data && data.item_count && data.item_count > 0) {
+              toast.classList.add('show');
+              setTimeout(() => {
+                toast.classList.remove('show');
+              }, 3000);
+            }
+          });
+        }
+
+        return response;
+      };
+    });
+  </script>
+-->
+
+<!--
+  <script>
+       // Populate country selector
+    document.addEventListener('DOMContentLoaded', function () {
+      const countrySelect = document.getElementById('drawer_country');
+      if (!countrySelect) return;
+
+      let defaultCountry = null;
+      try {
+        defaultCountry = Shopify?.customer?.default_address?.country;
+      } catch (e) {}
+
+      const countries = [
+        "India", "Singapore", "Malaysia", "Thailand", "Indonesia",
+        "Philippines", "Vietnam", "China", "Japan", "South Korea"
+      ];
+
+      countrySelect.innerHTML = countries.map(country =>
+        `<option value="${country}" ${country === defaultCountry ? 'selected' : ''}>${country}</option>`
+      ).join('');
+    });
+
+    // Calculate shipping function
+    function drawerShippingEstimate() {
+      const country = document.getElementById('drawer_country').value;
+      const zip = document.getElementById('drawer_zip').value;
+      const resultDiv = document.getElementById('drawer_shipping_result');
+
+      if (!country || !zip) {
+        resultDiv.innerHTML = "Please enter both country and postal code.";
+        return;
+      }
+
+      resultDiv.innerHTML = "🔄 Calculating...";
+
+      fetch('/cart/shipping_rates.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shipping_address: { country: country, zip: zip }
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.shipping_rates && data.shipping_rates.length > 0) {
+          const rates = data.shipping_rates.map(rate =>
+            `<p><strong>${rate.name}</strong>: ${rate.price}</p>`
+          ).join('');
+          resultDiv.innerHTML = rates;
+        } else {
+          resultDiv.innerHTML = "No shipping rates found.";
+        }
+      })
+      .catch(() => {
+        resultDiv.innerHTML = "Error fetching shipping rates.";
+      });
+    }
+  </script>
+-->
+
+<!--
+  <script>
+    function updateShippingEstimate() {
+      fetch('/cart.js')
+        .then(response => response.json())
+        .then(cart => {
+          const subtotal = cart.total_price / 100;
+          const messageEl = document.getElementById('shipping-estimate-message');
+          if (!messageEl) return;
+
+          if (subtotal >= 100) {
+            messageEl.innerText = "🎉 You qualify for Free Shipping!";
+          } else if (subtotal >= 50) {
+            const diff = (100 - subtotal).toFixed(2);
+            messageEl.innerText = `🚚 Spend $${diff} more to unlock Free Shipping`;
+          } else {
+            messageEl.innerText = "📦 Standard shipping calculated at checkout";
+          }
+        });
+    }
+
+    // Call it on load and whenever the cart is updated
+    document.addEventListener('DOMContentLoaded', updateShippingEstimate);
+    document.addEventListener('cart:updated', updateShippingEstimate);
+
+    // Optional: re-run after item added or changed
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      if (
+        args[0].includes('/cart/add') ||
+        args[0].includes('/cart/change') ||
+        args[0].includes('/cart/update')
+      ) {
+        response.clone().json().then(data => {
+          if (data && data.item_count > 0) {
+            updateShippingEstimate();
+          }
+        });
+      }
+      return response;
+    };
+  </script>
+-->

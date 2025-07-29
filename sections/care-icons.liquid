@@ -1,0 +1,115 @@
+{% stylesheet %}
+.care-icons-wrapper {
+  padding: 40px 20px;
+  background-color: #f8cbd3;
+  text-align: center;
+  padding-top: 71px;
+  padding-bottom: 71px;
+}
+
+.care-icons-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 64px;
+}
+
+.care-icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.care-icon {
+  width: 100px;
+  height: 100px;
+  background-color: #ffffff;
+  border: 3px solid #721C37;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  padding: 5px;
+}
+
+.care-icon svg {
+  width: 64px;
+  height: 64px;
+  fill: #721C37 !important;
+  stroke: #721C37 !important;
+  transition: all 0.3s ease;
+}
+
+.care-icon:hover {
+  background-color: #721C37;
+}
+
+.care-icon:hover svg {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.care-label {
+  font-size: 14px;
+  color: #721C37;
+  margin-top: 8px;
+}
+{% endstylesheet %}
+
+<div class="care-icons-wrapper">
+  <div class="care-icons-grid">
+    {% for block in section.blocks %}
+      <div class="care-icon-item">
+        <div class="care-icon">
+          {{ block.settings.svg | replace: 'fill=', 'data-fill=' | replace: 'stroke=', 'data-stroke=' | raw }}
+        </div>
+        {% if block.settings.label != blank %}
+          <div class="care-label">{{ block.settings.label }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Care Icons",
+  "tag": "section",
+  "class": "care-icons-section",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "icon",
+      "name": "Icon",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "svg",
+          "label": "SVG icon (inline <svg> code)",
+          "info": "Paste full SVG code including <svg>...</svg>. IMPORTANT: Remove 'fill', 'stroke', and 'style' attributes from all tags inside your SVG for color styling to work correctly."
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Icon label (optional)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Care Icons",
+      "blocks": [
+        { "type": "icon" },
+        { "type": "icon" },
+        { "type": "icon" },
+        { "type": "icon" },
+        { "type": "icon" },
+        { "type": "icon" }
+      ]
+    }
+  ]
+}
+{% endschema %}

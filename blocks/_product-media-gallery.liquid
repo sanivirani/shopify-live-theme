@@ -1,0 +1,253 @@
+<!-- Fancybox & Swiper CSS -->
+{{ 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css' | stylesheet_tag }}
+{{ 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css' | stylesheet_tag }}
+
+<!-- Fancybox & Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Fancybox init
+    Fancybox.bind('[data-fancybox="gallery"]', {
+      buttons: [
+        "slideShow",
+        "thumbs",
+        "zoom",
+        "fullScreen",
+        "share",
+        "close"
+      ],
+      loop: true,
+      protect: true
+    });
+
+    let thumbSwiper;
+
+    function initSwipers() {
+      // Destroy if already exists
+      if (thumbSwiper) thumbSwiper.destroy(true, true);
+
+      const isMobile = window.innerWidth < 768;
+
+      // Re-init thumbnail swiper
+      thumbSwiper = new Swiper(".swiper-thumbs", {
+        direction: isMobile ? 'horizontal' : 'vertical',
+        spaceBetween: 10,
+        slidesPerView: isMobile ? 4 : 5,
+        freeMode: true,
+        watchSlidesProgress: true,
+      });
+
+      // Main swiper
+      new Swiper(".swiper-main", {
+        spaceBetween: 10,
+        loop: true,
+        grabCursor: true,
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+        thumbs: {
+          swiper: thumbSwiper,
+        },
+      });
+    }
+
+    initSwipers();
+    window.addEventListener('resize', () => {
+      initSwipers();
+    });
+  });
+</script>
+
+{%- liquid
+  assign selected_product = closest.product
+  assign sorted_media = selected_product.media
+-%}
+
+<div class="product-gallery">
+  <div class="product-gallery__wrapper">
+    <!-- Thumbnails -->
+    <div class="swiper swiper-thumbs">
+      <div class="swiper-wrapper">
+        {% for media in sorted_media %}
+          {% if media.media_type == 'image' %}
+            <div class="swiper-slide">
+              <img
+                src="{{ media | image_url: width: 300 }}"
+                alt="{{ media.alt | escape }}"
+              >
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Main Swiper -->
+    <div class="swiper swiper-main">
+      <div class="swiper-wrapper">
+        {% for media in sorted_media %}
+          {% if media.media_type == 'image' %}
+            <div class="swiper-slide">
+              <a
+                href="{{ media | image_url: width: 2048 }}"
+                data-fancybox="gallery"
+                data-caption="{{ media.alt | escape }}"
+              >
+                <img
+                  src="{{ media | image_url: width: 1000 }}"
+                  alt="{{ media.alt | escape }}"
+                  loading="lazy"
+                >
+              </a>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+        .product-gallery {
+          max-width: 1000px;
+          margin: 0 auto;
+          padding: 1rem;
+        }
+
+        .product-gallery__wrapper {
+          display: flex;
+          gap: 2.05rem;
+          align-items: anchor-center;
+          flex-wrap: wrap;
+        }
+
+        .product-gallery .swiper-main {
+          flex: 1;
+          border-radius: 0px;
+          min-width: 0;
+        }
+
+        .product-gallery .swiper-main .swiper-slide {
+          background: #fff;
+          text-align: center;
+        }
+
+        .product-gallery .swiper-main img {
+          width: 100%;
+          height: auto;
+          object-fit: cover;
+          border-radius: 8px;
+          transition: transform 0.3s ease;
+        }
+
+        .product-gallery .swiper-thumbs {
+          width: 100px;
+          height: 600px;
+          overflow: hidden;
+          border-radius: 8px;
+          flex-shrink: 0;
+        }
+
+        .product-gallery .swiper-thumbs .swiper-slide {
+          width: 100%;
+          height: 100px !important;
+          opacity: 0.5;
+          cursor: pointer;
+          transition: opacity 0.3s ease, transform 0.2s ease;
+          border-radius: 8px;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .product-gallery .swiper-thumbs .swiper-slide-thumb-active {
+          opacity: 1;
+          border: 2px solid #721c37;
+        }
+
+        .product-gallery .swiper-thumbs img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 8px;
+        }
+
+        /* Fancybox v5: override thumbnail sizes */
+      .fancybox__thumbs .fancybox__thumb {
+        width: 100px;   /* default is 64px */
+        height: 100px;  /* default is 64px */
+      }
+
+      .fancybox__thumbs .fancybox__thumb.is-selected {
+      border-color: #000; /* highlight selected thumb */
+    }
+
+    /* Swiper main navigation arrows */
+  .swiper-main .swiper-button-next,
+  .swiper-main .swiper-button-prev {
+    width: 48px;
+    height: 48px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 50%;
+    z-index: 10;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .swiper-main .swiper-button-next:hover,
+  .swiper-main .swiper-button-prev:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+  }
+
+  /* Adjust arrow icon size */
+  .swiper-main .swiper-button-next::after,
+  .swiper-main .swiper-button-prev::after {
+    font-size: 20px;
+    color: #fff;
+  }
+
+
+        /* Mobile responsiveness */
+        @media (max-width: 767px) {
+          .product-gallery__wrapper {
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+
+          .product-gallery .swiper-thumbs {
+            width: 100%;
+            height: auto;
+            overflow-x: auto;
+            overflow-y: hidden;
+            order: 2;
+          }
+
+          .product-gallery .swiper-thumbs .swiper-slide {
+            width: 100px !important;
+            height: 100px !important;
+            flex-shrink: 0;
+          }
+
+          .product-gallery .swiper-thumbs .swiper-wrapper {
+            display: flex;
+          }
+        }
+</style>
+
+{% schema %}
+{
+  "name": "Fancy Swiper Gallery",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Fancy Swiper Gallery"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,541 @@
+{% doc %}
+  @prompt
+    make product title and typo layout is 
+    font-family: Gowun Batang;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 34px;
+    leading-trim: NONE;
+    line-height: 38px;
+    letter-spacing: -0.6px;
+    text-transform: lowercase;, give me all settings for padding , margin , font family ,
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap');
+
+  .ai-product-title-container-{{ ai_gen_id }} {
+    padding: {{ block.settings.padding_top }}px {{ block.settings.padding_right }}px {{ block.settings.padding_bottom }}px {{ block.settings.padding_left }}px;
+    margin: {{ block.settings.margin_top }}px {{ block.settings.margin_right }}px {{ block.settings.margin_bottom }}px {{ block.settings.margin_left }}px;
+  }
+
+  .ai-product-title-{{ ai_gen_id }} {
+    {% case block.settings.font_family %}
+      {% when 'gowun_batang' %}
+        font-family: 'Gowun Batang', serif;
+      {% when 'arial' %}
+        font-family: Arial, sans-serif;
+      {% when 'helvetica' %}
+        font-family: Helvetica, Arial, sans-serif;
+      {% when 'georgia' %}
+        font-family: Georgia, serif;
+      {% when 'times' %}
+        font-family: 'Times New Roman', Times, serif;
+      {% when 'courier' %}
+        font-family: 'Courier New', Courier, monospace;
+      {% when 'verdana' %}
+        font-family: Verdana, Geneva, sans-serif;
+      {% when 'trebuchet' %}
+        font-family: 'Trebuchet MS', Helvetica, sans-serif;
+      {% when 'palatino' %}
+        font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+      {% when 'impact' %}
+        font-family: Impact, Charcoal, sans-serif;
+      {% when 'comic_sans' %}
+        font-family: 'Comic Sans MS', cursive;
+      {% when 'lucida' %}
+        font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+      {% when 'tahoma' %}
+        font-family: Tahoma, Geneva, sans-serif;
+      {% when 'system' %}
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      {% else %}
+        font-family: 'Gowun Batang', serif;
+    {% endcase %}
+    
+    font-weight: {{ block.settings.font_weight }};
+    font-style: {{ block.settings.font_style }};
+    font-size: {{ block.settings.font_size }}px;
+    line-height: {{ block.settings.line_height }}px;
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    text-transform: {{ block.settings.text_transform }};
+    color: {{ block.settings.text_color }};
+    text-align: {{ block.settings.text_alignment }};
+    margin: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-product-title-container-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_top_mobile }}px {{ block.settings.padding_right_mobile }}px {{ block.settings.padding_bottom_mobile }}px {{ block.settings.padding_left_mobile }}px;
+      margin: {{ block.settings.margin_top_mobile }}px {{ block.settings.margin_right_mobile }}px {{ block.settings.margin_bottom_mobile }}px {{ block.settings.margin_left_mobile }}px;
+    }
+
+    .ai-product-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.font_size_mobile }}px;
+      line-height: {{ block.settings.line_height_mobile }}px;
+      letter-spacing: {{ block.settings.letter_spacing_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-product-title-container-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <h1 class="ai-product-title-{{ ai_gen_id }}">
+    {% if block.settings.custom_title != blank %}
+      {{ block.settings.custom_title }}
+    {% else %}
+      {{ product.title }}
+    {% endif %}
+  </h1>
+</div>
+
+{% schema %}
+{
+  "name": "Styled Product Title",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Text Content"
+    },
+    {
+      "type": "text",
+      "id": "custom_title",
+      "label": "Custom title",
+      "info": "Leave blank to use product title"
+    },
+    {
+      "type": "header",
+      "content": "Font Family"
+    },
+    {
+      "type": "select",
+      "id": "font_family",
+      "label": "Font family",
+      "options": [
+        {
+          "value": "gowun_batang",
+          "label": "Gowun Batang (Default)"
+        },
+        {
+          "value": "system",
+          "label": "System Font"
+        },
+        {
+          "value": "arial",
+          "label": "Arial"
+        },
+        {
+          "value": "helvetica",
+          "label": "Helvetica"
+        },
+        {
+          "value": "georgia",
+          "label": "Georgia"
+        },
+        {
+          "value": "times",
+          "label": "Times New Roman"
+        },
+        {
+          "value": "courier",
+          "label": "Courier New"
+        },
+        {
+          "value": "verdana",
+          "label": "Verdana"
+        },
+        {
+          "value": "trebuchet",
+          "label": "Trebuchet MS"
+        },
+        {
+          "value": "palatino",
+          "label": "Palatino"
+        },
+        {
+          "value": "impact",
+          "label": "Impact"
+        },
+        {
+          "value": "comic_sans",
+          "label": "Comic Sans MS"
+        },
+        {
+          "value": "lucida",
+          "label": "Lucida Sans"
+        },
+        {
+          "value": "tahoma",
+          "label": "Tahoma"
+        }
+      ],
+      "default": "gowun_batang"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "100",
+          "label": "Thin (100)"
+        },
+        {
+          "value": "200",
+          "label": "Extra Light (200)"
+        },
+        {
+          "value": "300",
+          "label": "Light (300)"
+        },
+        {
+          "value": "400",
+          "label": "Normal (400)"
+        },
+        {
+          "value": "500",
+          "label": "Medium (500)"
+        },
+        {
+          "value": "600",
+          "label": "Semi Bold (600)"
+        },
+        {
+          "value": "700",
+          "label": "Bold (700)"
+        },
+        {
+          "value": "800",
+          "label": "Extra Bold (800)"
+        },
+        {
+          "value": "900",
+          "label": "Black (900)"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "select",
+      "id": "font_style",
+      "label": "Font style",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "italic",
+          "label": "Italic"
+        },
+        {
+          "value": "oblique",
+          "label": "Oblique"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 12,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "min": 12,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size (mobile)",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "line_height",
+      "min": 12,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Line height",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "line_height_mobile",
+      "min": 12,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "label": "Line height (mobile)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": -3,
+      "max": 3,
+      "step": 0.1,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": -0.6
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing_mobile",
+      "min": -3,
+      "max": 3,
+      "step": 0.1,
+      "unit": "px",
+      "label": "Letter spacing (mobile)",
+      "default": -0.4
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize"
+        }
+      ],
+      "default": "lowercase"
+    },
+    {
+      "type": "header",
+      "content": "Padding (Desktop)"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Right padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Left padding",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Padding (Mobile)"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding (mobile)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_right_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Right padding (mobile)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding (mobile)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_left_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Left padding (mobile)",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Margin (Desktop)"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top margin",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_right",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Right margin",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom margin",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "margin_left",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Left margin",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Margin (Mobile)"
+    },
+    {
+      "type": "range",
+      "id": "margin_top_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Top margin (mobile)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_right_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Right margin (mobile)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom margin (mobile)",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "margin_left_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Left margin (mobile)",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Styled Product Title"
+    }
+  ]
+}
+{% endschema %}

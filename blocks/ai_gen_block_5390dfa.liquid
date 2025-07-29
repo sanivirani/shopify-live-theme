@@ -1,0 +1,488 @@
+{% doc %}
+  @prompt
+    make product price and compare price block and typo layout is 
+    font-family: Inter;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 26px;
+    leading-trim: NONE;
+    line-height: 40px;
+    letter-spacing: 0px;
+    
+    
+    don't make so much space between number and currency word simple both beetween not seprator, give me spacing padding, margin settings and formating settings
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-price-block-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: {{ block.settings.price_spacing }}px;
+    margin: {{ block.settings.margin_top }}px {{ block.settings.margin_right }}px {{ block.settings.margin_bottom }}px {{ block.settings.margin_left }}px;
+    padding: {{ block.settings.padding_top }}px {{ block.settings.padding_right }}px {{ block.settings.padding_bottom }}px {{ block.settings.padding_left }}px;
+    {% if block.settings.align_center %}
+      text-align: center;
+      align-items: center;
+    {% elsif block.settings.text_alignment == 'right' %}
+      text-align: right;
+      align-items: flex-end;
+    {% elsif block.settings.text_alignment == 'left' %}
+      text-align: left;
+      align-items: flex-start;
+    {% endif %}
+  }
+
+  .ai-price-current-{{ ai_gen_id }} {
+    font-family: Inter, sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 26px;
+    line-height: 40px;
+    letter-spacing: 0px;
+    color: {{ block.settings.current_price_color }};
+    margin: 0;
+    {% if block.settings.current_price_text_transform != 'none' %}
+      text-transform: {{ block.settings.current_price_text_transform }};
+    {% endif %}
+  }
+
+  .ai-price-compare-{{ ai_gen_id }} {
+    font-family: Inter, sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: {{ block.settings.compare_price_size }}px;
+    line-height: 1.2;
+    letter-spacing: 0px;
+    color: {{ block.settings.compare_price_color }};
+    text-decoration: {{ block.settings.compare_price_decoration }};
+    margin: 0;
+    {% if block.settings.compare_price_text_transform != 'none' %}
+      text-transform: {{ block.settings.compare_price_text_transform }};
+    {% endif %}
+  }
+
+  .ai-price-savings-{{ ai_gen_id }} {
+    font-family: Inter, sans-serif;
+    font-weight: 500;
+    font-size: {{ block.settings.savings_text_size }}px;
+    color: {{ block.settings.savings_color }};
+    margin: 0;
+    {% if block.settings.savings_text_transform != 'none' %}
+      text-transform: {{ block.settings.savings_text_transform }};
+    {% endif %}
+  }
+
+  .ai-price-block-{{ ai_gen_id }} .money {
+    white-space: nowrap;
+  }
+
+  {% if block.settings.layout == 'horizontal' %}
+    .ai-price-block-{{ ai_gen_id }} {
+      flex-direction: row;
+      align-items: baseline;
+      gap: {{ block.settings.horizontal_spacing }}px;
+    }
+  {% endif %}
+
+  {% if block.settings.show_currency_code %}
+    .ai-price-block-{{ ai_gen_id }} .money::after {
+      content: ' {{ cart.currency.iso_code }}';
+      font-weight: inherit;
+      {% if block.settings.currency_code_size != 100 %}
+        font-size: {{ block.settings.currency_code_size }}%;
+      {% endif %}
+    }
+  {% endif %}
+{% endstyle %}
+
+<div class="ai-price-block-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if product %}
+    {% assign current_variant = product.selected_or_first_available_variant %}
+    <div class="ai-price-current-{{ ai_gen_id }}">
+      {% if block.settings.show_currency_code %}
+        {{ current_variant.price | money_without_currency }}
+      {% else %}
+        {{ current_variant.price | money }}
+      {% endif %}
+    </div>
+
+    {% if current_variant.compare_at_price > current_variant.price %}
+      <div class="ai-price-compare-{{ ai_gen_id }}">
+        {% if block.settings.show_currency_code %}
+          {{ current_variant.compare_at_price | money_without_currency }}
+        {% else %}
+          {{ current_variant.compare_at_price | money }}
+        {% endif %}
+      </div>
+
+      {% if block.settings.show_savings %}
+        {% assign savings = current_variant.compare_at_price | minus: current_variant.price %}
+        {% if block.settings.savings_format == 'amount' %}
+          <div class="ai-price-savings-{{ ai_gen_id }}">
+            {{ block.settings.savings_text_prefix }} {% if block.settings.show_currency_code %}{{ savings | money_without_currency }}{% else %}{{ savings | money }}{% endif %}
+          </div>
+        {% elsif block.settings.savings_format == 'percentage' %}
+          {% assign savings_percentage = savings | times: 100.0 | divided_by: current_variant.compare_at_price | round %}
+          <div class="ai-price-savings-{{ ai_gen_id }}">
+            {{ block.settings.savings_text_prefix }} {{ savings_percentage }}%
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  {% else %}
+    <div class="ai-price-current-{{ ai_gen_id }}">
+      {% if block.settings.show_currency_code %}
+        {{ 1999 | money_without_currency }}
+      {% else %}
+        {{ 1999 | money }}
+      {% endif %}
+    </div><div class="ai-price-compare-{{ ai_gen_id }}">
+      {% if block.settings.show_currency_code %}
+        {{ 2499 | money_without_currency }}
+      {% else %}
+        {{ 2499 | money }}
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Product Price",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "vertical",
+          "label": "Vertical"
+        },
+        {
+          "value": "horizontal",
+          "label": "Horizontal"
+        }
+      ],
+      "default": "vertical"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "price_spacing",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical spacing between prices",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "horizontal_spacing",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Horizontal spacing (when horizontal layout)",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding right",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding left",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Margin"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Margin top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_right",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Margin right",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Margin bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_left",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Margin left",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Currency"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_currency_code",
+      "label": "Show currency code",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "currency_code_size",
+      "min": 60,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Currency code size",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Current Price"
+    },
+    {
+      "type": "color",
+      "id": "current_price_color",
+      "label": "Current price color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "current_price_text_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Compare Price"
+    },
+    {
+      "type": "range",
+      "id": "compare_price_size",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Compare price size",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "compare_price_color",
+      "label": "Compare price color",
+      "default": "#999999"
+    },
+    {
+      "type": "select",
+      "id": "compare_price_decoration",
+      "label": "Text decoration",
+      "options": [
+        {
+          "value": "line-through",
+          "label": "Line through"
+        },
+        {
+          "value": "none",
+          "label": "None"
+        }
+      ],
+      "default": "line-through"
+    },
+    {
+      "type": "select",
+      "id": "compare_price_text_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Savings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_savings",
+      "label": "Show savings",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "savings_text_prefix",
+      "label": "Savings text prefix",
+      "default": "Save"
+    },
+    {
+      "type": "select",
+      "id": "savings_format",
+      "label": "Savings format",
+      "options": [
+        {
+          "value": "amount",
+          "label": "Amount"
+        },
+        {
+          "value": "percentage",
+          "label": "Percentage"
+        }
+      ],
+      "default": "amount"
+    },
+    {
+      "type": "range",
+      "id": "savings_text_size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Savings text size",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "savings_color",
+      "label": "Savings color",
+      "default": "#008060"
+    },
+    {
+      "type": "select",
+      "id": "savings_text_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Price"
+    }
+  ]
+}
+{% endschema %}

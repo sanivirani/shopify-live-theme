@@ -1,0 +1,30 @@
+<div id="comparePageContent">
+  <p>Loading compare products...</p>
+</div>
+
+<script>
+function renderComparePage() {
+  const handles = JSON.parse(localStorage.getItem('compareList') || '[]');
+  const container = document.getElementById('comparePageContent');
+
+  if (handles.length === 0) {
+    container.innerHTML = '<p>No products to compare.</p>';
+    return;
+  }
+
+  container.innerHTML = '<p>Loading products...</p>';
+
+  Promise.all(handles.map(handle =>
+    fetch(`/products/${handle}?view=compare-item`).then(r => r.text())
+  ))
+  .then(htmls => {
+    container.innerHTML = htmls.join('');
+  })
+  .catch(err => {
+    container.innerHTML = '<p>Error loading compare items.</p>';
+    console.error(err);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', renderComparePage);
+</script>

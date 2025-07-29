@@ -1,0 +1,337 @@
+{% doc %}
+  @prompt
+    hey make here simple full ingrident block for product a simple icon and a text underline and icon is center, hey both are hotizontal align, hey i upload setting, and left align settings and all formating settingd, icon and text bettween only 2 px gap and icon upload by theme setting, hey add some gap settings between text and icon
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ingredient-block-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: {{ block.settings.alignment }};
+    padding: {{ block.settings.padding }}px;
+    max-width: 100%;
+    margin: {{ block.settings.margin }}px 0;
+    gap: {{ block.settings.gap }}px;
+  }
+
+  .ingredient-icon-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    flex-shrink: 0;
+  }
+
+  .ingredient-icon-{{ ai_gen_id }} img {
+    width:100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ingredient-icon-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+  }
+
+  .ingredient-icon-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    color: #cccccc;
+  }
+
+  .ingredient-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    margin:0;
+    font-weight: {{ block.settings.text_weight }};
+    {% if block.settings.show_underline %}
+      border-bottom: {{ block.settings.underline_thickness }}px {{ block.settings.underline_style }} {{ block.settings.underline_color }};
+      padding-bottom: 3px;
+      display: inline-block;
+    {% endif %}
+  }
+
+  @media screen and (max-width: 749px) {
+    .ingredient-block-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_mobile }}px;
+      margin: {{ block.settings.margin_mobile }}px 0;gap: {{ block.settings.gap_mobile }}px;
+    }
+    
+    .ingredient-icon-{{ ai_gen_id }} {
+      width: {{ block.settings.icon_size_mobile }}px;
+      height: {{ block.settings.icon_size_mobile }}px;
+    }
+    
+    .ingredient-text-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size_mobile }}px;
+    }
+  }
+{% endstyle %}<div class="ingredient-block-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ingredient-icon-{{ ai_gen_id }}">
+    {% if block.settings.icon_image %}
+      <img
+        src="{{ block.settings.icon_image | image_url: width: 100 }}"
+        alt="{{ block.settings.icon_image.alt | escape }}"
+        loading="lazy"
+        width="100"
+        height="100"
+      >
+    {% else %}
+      <div class="ingredient-icon-placeholder-{{ ai_gen_id }}">
+        {{'image' | placeholder_svg_tag }}
+      </div>
+    {% endif %}
+  </div>
+
+  <p class="ingredient-text-{{ ai_gen_id }}">{{ block.settings.ingredient_text }}</p>
+</div>
+
+{% schema %}
+{
+  "name": "Ingredient",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "ingredient_text",
+      "label": "Ingredient text",
+      "default": "Natural Ingredient"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_image",
+      "label": "Icon image"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap between icon and text",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "margin",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Vertical margin",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Icon Style"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Text Style"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "text_weight",
+      "label": "Text weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "header",
+      "content": "Underline"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_underline",
+      "label": "Show underline",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "underline_style",
+      "label": "Underline style",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "dashed",
+          "label": "Dashed"
+        },
+        {
+          "value": "dotted",
+          "label": "Dotted"
+        }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "range",
+      "id": "underline_thickness",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Underline thickness",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "underline_color",
+      "label": "Underline color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Mobile Settings"
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "min": 0,
+      "max": 15,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap between icon and text (mobile)",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "icon_size_mobile",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Icon size (mobile)",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size (mobile)",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_mobile",
+      "min": 0,
+      "max": 30,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding (mobile)",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "margin_mobile",
+      "min": 0,
+      "max": 30,
+      "step": 5,
+      "unit": "px",
+      "label": "Vertical margin (mobile)",
+      "default": 5
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ingredient"
+    }
+  ]
+}
+{% endschema %}

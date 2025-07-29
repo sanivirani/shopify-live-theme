@@ -1,0 +1,35 @@
+{% comment %} this render all compare product layout {% endcomment %}
+
+<td class="compare-cell compare-cell--image">
+  <img src="{{ product.featured_image | image_url: width: 150 }}" alt="{{ product.title }}">
+</td>
+
+<td class="compare-cell compare-cell--title">
+ <a href="{{ product.url }}"> <strong>{{ product.title }}</strong> </a>
+</td>
+
+<td class="compare-cell compare-cell--vendor">
+  {{ product.vendor }}
+</td>
+
+<td class="compare-cell compare-cell--type">
+  {{ product.type }}
+</td>
+
+<td class="compare-cell compare-cell--options">
+  {% for option in product.options_with_values %}
+    <div>{{ option.name }}: {{ option.values | join: ", " }}</div>
+  {% endfor %}
+</td>
+
+<td class="compare-cell compare-cell--availability">
+  {% if product.available %}In Stock{% else %}Out of Stock{% endif %}
+</td>
+
+<td class="compare-cell compare-cell--price">
+  {{ product.price | money }}
+</td>
+
+<td class="compare-cell compare-cell--remove">
+  <button onclick="removeFromCompare('{{ product.handle }}')">Remove</button>
+</td>

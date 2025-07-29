@@ -1,0 +1,61 @@
+{% comment %} this btn render on product card hover  {% endcomment %}
+
+<!-- this file also link to custom quick add-view -->
+
+<script type="module">
+  
+             import { CartAddEvent } from '@theme/events';
+
+             window.handleQuickAdd = function(event) {
+          event.preventDefault();
+
+          const form = event.target;
+          const formData = new FormData(form);
+
+          fetch('/cart/add.js', {
+            method: 'POST',
+            body: formData,
+            headers: { Accept: 'application/json' }
+          })
+            .then(res => res.json())
+            .then(() => fetch('/?sections=cart-drawer,cart-icon-bubble'))
+            .then(res => res.json())
+            .then(sectionData => {
+              const drawer = document.querySelector('cart-drawer-component');
+              const html = sectionData['cart-drawer'];
+              if (drawer && html) {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const newDrawer = doc.querySelector('cart-drawer-component');
+                if (newDrawer && drawer.parentNode) drawer.replaceWith(newDrawer);
+              }
+
+              const tmp = document.createElement('div');
+              tmp.innerHTML = sectionData['cart-icon-bubble'];
+              const newBubble = tmp.querySelector('[data-cart-count]');
+              const oldBubble = document.querySelector('[data-cart-count]');
+              if (newBubble && oldBubble) {
+                oldBubble.innerHTML = newBubble.innerHTML;
+                oldBubble.setAttribute('data-cart-count', newBubble.getAttribute('data-cart-count'));
+              }
+
+              document.dispatchEvent(new CartAddEvent());
+
+              const updatedDrawer = document.querySelector('cart-drawer-component');
+              if (updatedDrawer) updatedDrawer.open();
+
+              showToast(); // <--  Show success toast
+            });
+        };
+
+
+  window.showToast = function(message = 'Added to cart ✓') {
+    const toast = document.getElementById('custom-toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  };
+</script>

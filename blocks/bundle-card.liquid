@@ -1,0 +1,159 @@
+<div class="bundle-section">
+  <h2 class="bundle-heading">{{ section.settings.title }}</h2>
+  
+  <div class="bundle-card">
+    <div class="bundle-products">
+      {% for product in section.settings.bundle_products %}
+        {% assign bundle_product = all_products[product] %}
+        <div class="bundle-product">
+          <img src="{{ bundle_product.featured_image | image_url: width: 300 }}" alt="{{ bundle_product.title }}">
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="bundle-info">
+      <h3 class="bundle-name">{{ section.settings.bundle_name }}</h3>
+
+      {% assign total_price = 0 %}
+      {% assign total_compare = 0 %}
+      {% for product in section.settings.bundle_products %}
+        {% assign p = all_products[product] %}
+        {% assign total_price = total_price | plus: p.price %}
+        {% assign total_compare = total_compare | plus: p.compare_at_price %}
+      {% endfor %}
+
+      {% assign discount = section.settings.bundle_discount | divided_by: 100.0 %}
+      {% assign final_price = total_price | times: 1.0 | minus: total_price | times: discount %}
+
+      <div class="bundle-pricing">
+        <strong>{{ final_price | money }}</strong>
+        {% if total_compare > total_price %}
+          <span class="compare-price">{{ total_compare | money }}</span>
+        {% endif %}
+      </div>
+
+      <button class="bundle-cart-btn" onclick="addBundleToCart({{ section.id | json }});">
+        <svg viewBox="0 0 24 24"><!-- shopping bag icon --></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function addBundleToCart(sectionId) {
+    const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+    const products = {{ section.settings.bundle_products | json }};
+    
+    products.forEach((handle, i) => {
+      fetch(`/products/${handle}.js`)
+        .then(res => res.json())
+        .then(product => {
+          const variantId = product.variants[0].id;
+          fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: variantId, quantity: 1 })
+          });
+        });
+    });
+
+    alert('Bundle added to cart!');
+  }
+</script>
+
+<style>
+  .bundle-card {
+  display: flex;
+  background: #f5f0e6;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+.bundle-products {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #fff;
+}
+.bundle-product img {
+  max-width: 80px;
+  border-radius: 8px;
+}
+.bundle-info {
+  flex: 1;
+  padding: 20px;
+  position: relative;
+}
+.bundle-name {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.bundle-pricing strong {
+  font-size: 1.3rem;
+  color: #222;
+}
+.compare-price {
+  text-decoration: line-through;
+  color: #888;
+  margin-left: 10px;
+}
+.bundle-cart-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #58162d;
+  border: none;
+  padding: 12px;
+  border-top-left-radius: 20px;
+  cursor: pointer; 
+}
+.bundle-cart-btn svg {
+  fill: white;
+  width: 20px;
+  height: 20px;
+}
+
+</style>
+
+{% schema %}
+{
+  "name": "Product Bundle Card",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Heading",
+      "default": "bundle & save"
+    },
+    {
+      "type": "text",
+      "id": "bundle_name",
+      "label": "Bundle Name",
+      "default": "The Works"
+    },
+    {
+      "type": "product_list",
+      "id": "bundle_products",
+      "label": "Select Products in Bundle",
+      "limit": 5
+    },
+    {
+      "type": "range",
+      "id": "bundle_discount",
+      "label": "Discount %",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 30
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Bundle Card",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
+

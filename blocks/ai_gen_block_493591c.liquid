@@ -1,0 +1,376 @@
+{% doc %}
+  @prompt
+    hey i want to shopify horizon theme like add to cart btn or quick add logic like when hit btn this same as shopify theme like animate and header count or update and also cart data update and open cart drawer and everything using no reloading, hey open cart drawer
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-cart-drawer-opener-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: {{ block.settings.button_padding }}px {{ block.settings.button_padding | times: 1.5 }}px;
+    background-color: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    font-size: {{ block.settings.font_size }}px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 44px;
+    position: relative;
+  }
+
+  .ai-cart-drawer-opener-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+    color: {{ block.settings.button_hover_text_color }};
+    border-color: {{ block.settings.border_hover_color }};
+    transform: translateY(-1px);
+  }
+
+  .ai-cart-icon-{{ ai_gen_id }} {
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    stroke-width: {{ block.settings.icon_stroke_width }};
+  }
+
+  .ai-cart-count-{{ ai_gen_id }} {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: {{ block.settings.badge_color }};
+    color: {{ block.settings.badge_text_color }};
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+  }
+
+  .ai-cart-count-{{ ai_gen_id }}.show {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .ai-cart-count-{{ ai_gen_id }}.animate {
+    animation: ai-cart-bounce-{{ ai_gen_id }} 0.6s ease;
+  }
+
+  @keyframes ai-cart-bounce-{{ ai_gen_id }} {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-cart-drawer-opener-{{ ai_gen_id }} {
+      padding: {{ block.settings.button_padding | times: 0.8 }}px {{ block.settings.button_padding | times: 1.2 }}px;
+      font-size: {{ block.settings.font_size | times: 0.9 }}px;
+    }
+    
+    .ai-cart-icon-{{ ai_gen_id }} {
+      width: {{ block.settings.icon_size | times: 0.9 }}px;
+      height: {{ block.settings.icon_size | times: 0.9 }}px;}
+  }
+{% endstyle %}<cart-drawer-opener-{{ ai_gen_id }}
+  class="ai-cart-drawer-opener-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.show_icon %}
+    <svg class="ai-cart-icon-{{ ai_gen_id }}" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 0 0 5.414 17H19M17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM9 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+    </svg>
+  {% endif %}
+  
+  {% if block.settings.button_text != blank %}
+    <span>{{ block.settings.button_text }}</span>
+  {% endif %}
+  
+  {% if block.settings.show_count %}
+    <span class="ai-cart-count-{{ ai_gen_id }}" data-cart-count="{{ cart.item_count }}">
+      {{ cart.item_count }}
+    </span>
+  {% endif %}
+</cart-drawer-opener-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CartDrawerOpener{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.cartCount = null;
+      }
+
+      connectedCallback() {
+        this.cartCount = this.querySelector('.ai-cart-count-{{ ai_gen_id }}');
+        this.setupEventListeners();
+        this.updateCartCount();
+      }
+
+      setupEventListeners() {
+        this.addEventListener('click', this.handleClick.bind(this));
+        document.addEventListener('cart:updated', this.handleCartUpdate.bind(this));
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'cart-count') {
+            this.updateCartCountFromStorage();
+          }
+        });
+      }
+
+      handleClick(event) {
+        event.preventDefault();
+        this.openCartDrawer();
+      }
+
+      openCartDrawer() {
+        const cartDrawer = document.querySelector('cart-drawer');
+        const cartDrawerToggle = document.querySelector('[data-cart-drawer-toggle]');
+        const cartButton = document.querySelector('.header__icon--cart');
+        
+        if (cartDrawer && typeof cartDrawer.open === 'function') {
+          cartDrawer.open();
+        } else if (cartDrawerToggle) {
+          cartDrawerToggle.click();
+        } else if (cartButton) {
+          cartButton.click();
+        } else {
+          const drawerElement = document.querySelector('.drawer, [data-drawer], .cart-drawer');
+          const overlay = document.querySelector('.drawer-overlay, .overlay');
+          
+          if (drawerElement) {
+            drawerElement.classList.add('active', 'open', 'drawer--active');
+            document.body.classList.add('overflow-hidden', 'drawer-open');
+            
+            if (overlay) {
+              overlay.classList.add('active');
+            }
+          } else {
+            window.location.href = '/cart';
+          }
+        }
+      }
+
+      async handleCartUpdate(event) {
+        if (event.detail && event.detail.cart) {
+          this.updateCartCountDisplay(event.detail.cart.item_count);
+        } else {
+          await this.fetchAndUpdateCartCount();
+        }
+      }
+
+      async fetchAndUpdateCartCount() {
+        try {
+          const response = await fetch('/cart.js');
+          const cart = await response.json();
+          this.updateCartCountDisplay(cart.item_count);
+        } catch (error) {
+          console.error('Failed to fetch cart:', error);
+        }
+      }
+
+      updateCartCount() {
+        if (this.cartCount) {
+          const currentCount = parseInt(this.cartCount.dataset.cartCount) || 0;
+          this.updateCartCountDisplay(currentCount);
+        }
+      }
+
+      updateCartCountDisplay(count) {
+        if (!this.cartCount) return;
+        
+        const previousCount = parseInt(this.cartCount.textContent) || 0;
+        this.cartCount.textContent = count;
+        this.cartCount.dataset.cartCount = count;
+        
+        if (count > 0) {
+          this.cartCount.classList.add('show');
+          
+          if (count > previousCount) {
+            this.cartCount.classList.add('animate');
+            setTimeout(() => {
+              this.cartCount.classList.remove('animate');
+            }, 600);
+          }
+        } else {
+          this.cartCount.classList.remove('show');
+        }
+        
+        localStorage.setItem('cart-count', count);
+      }
+
+      updateCartCountFromStorage() {
+        const storedCount = localStorage.getItem('cart-count');
+        if (storedCount !== null) {
+          this.updateCartCountDisplay(parseInt(storedCount));
+        }
+      }
+    }
+
+    customElements.define('cart-drawer-opener-{{ ai_gen_id }}', CartDrawerOpener{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Cart Drawer Opener",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Cart"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show cart icon",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "Show item count",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Button Style"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text_color",
+      "label": "Button hover text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "border_hover_color",
+      "label": "Border hover color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "button_padding",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Button padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Icon Style"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "icon_stroke_width",
+      "min": 1,
+      "max": 3,
+      "step": 0.5,
+      "label": "Icon stroke width",
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Count Badge"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Badge color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge text color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Cart Drawer Opener"
+    }
+  ]
+}
+{% endschema %}

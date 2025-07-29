@@ -1,0 +1,243 @@
+{% doc %}
+  @prompt
+    make a block a discount card two line second is text for terms and conditon and 
+    width: 515;
+    height: 94;
+    angle: 0 deg;
+    opacity: 1;
+    border-width: 1px;
+    border-radius: 6px;, hey remove all padding and give settings for that, in terms and condiotion area give wrord fior link setting
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .discount-card-{{ ai_gen_id }} {
+    width: 550px;
+    height: 94px;
+    max-width: 100%;
+    opacity: 1;
+    border-width: {{ block.settings.border_width }}px;
+    border-style: solid;
+    border-color: {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    background-color: {{ block.settings.background_color }};
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px;
+    gap : 10px;
+    box-sizing: border-box;
+    margin: 0 auto;
+  }
+
+  .discount-card-main-{{ ai_gen_id }} {
+    font-size: {{ block.settings.main_text_size }}px;
+    font-weight: {{ block.settings.main_text_weight }};
+    color: {{ block.settings.main_text_color }};
+    margin: 0 0 6px 0;line-height: 1.2;
+  }
+
+  .discount-card-terms-{{ ai_gen_id }} {
+    font-size: {{ block.settings.terms_text_size }}px;
+    color: {{ block.settings.terms_text_color }};
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .discount-card-terms-link-{{ ai_gen_id }} {
+    color: {{ block.settings.link_color }};
+    text-decoration: underline;
+  }
+
+  .discount-card-terms-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.link_hover_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .discount-card-{{ ai_gen_id }} {
+      width: 100%;
+      height: auto;
+      min-height: 94px;
+    }
+    
+    .discount-card-main-{{ ai_gen_id }} {
+      font-size: {{ block.settings.main_text_size | minus: 2 }}px;
+    }
+    
+    .discount-card-terms-{{ ai_gen_id }} {
+      font-size: {{ block.settings.terms_text_size | minus: 1 }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="discount-card-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <p class="discount-card-main-{{ ai_gen_id }}">{{ block.settings.main_text }}</p>
+  <p class="discount-card-terms-{{ ai_gen_id }}">
+    {{ block.settings.terms_text }}{% if block.settings.link_text != blank and block.settings.link_url != blank %}
+      <a href="{{ block.settings.link_url }}" class="discount-card-terms-link-{{ ai_gen_id }}">{{ block.settings.link_text }}</a>
+    {% endif %}
+  </p>
+</div>
+
+{% schema %}
+{
+  "name": "Discount Card",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "main_text",
+      "label": "Main text",
+      "default": "Get 15% off your first order with code: WELCOME15"
+    },
+    {
+      "type": "text",
+      "id": "terms_text",
+      "label": "Terms and conditions",
+      "default": "Valid for new customers only. Cannot be combined with other offers."
+    },
+    {
+      "type": "text",
+      "id": "link_text",
+      "label": "Link text"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link URL"
+    },
+    {
+      "type": "header",
+      "content": "Card Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e6e6e6"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Main Text Style"
+    },
+    {
+      "type": "range",
+      "id": "main_text_size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "main_text_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "main_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Terms Text Style"
+    },
+    {
+      "type": "range",
+      "id": "terms_text_size",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "terms_text_color",
+      "label": "Text color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#000f9f"
+    },
+    {
+      "type": "color",
+      "id": "link_hover_color",
+      "label": "Link hover color",
+      "default": "#000000"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Discount Card"
+    }
+  ]
+}
+{% endschema %}

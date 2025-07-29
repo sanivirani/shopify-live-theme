@@ -1,0 +1,34 @@
+{% render 'custom-accordion' %}
+
+{% schema %}
+{
+  "name": "Custom Accordion",
+  "max_blocks": 10,
+  "blocks": [
+    {
+      "type": "accordion_item",
+      "name": "Accordion Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Accordion Title"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content",
+          "default": "<p>This is the accordion content.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Accordion",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

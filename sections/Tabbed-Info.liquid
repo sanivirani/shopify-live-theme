@@ -1,0 +1,398 @@
+{% schema %}
+{
+  "name": "Tabbed Info",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "default": "Product Information"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_label",
+          "label": "Tab Label",
+          "default": "Tab"
+        },
+        {
+          "type": "text",
+          "id": "tab_title",
+          "label": "Tab Content Title",
+          "default": "About product"
+        },
+        {
+          "type": "richtext",
+          "id": "tab_content",
+          "label": "Tab Content",
+          "default": "<p>Your rich text here.</p>"
+        },
+        {
+          "type": "select",
+          "id": "content_text_align",
+          "label": "Content Text Alignment",
+          "default": "center",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "content_font_size",
+          "label": "Content Font Size (px)",
+          "default": 16,
+          "min": 10,
+          "max": 36,
+          "step": 1
+        },
+        {
+          "type": "select",
+          "id": "content_font_weight",
+          "label": "Content Font Weight",
+          "default": "400",
+          "options": [
+            { "value": "300", "label": "Light" },
+            { "value": "400", "label": "Normal" },
+            { "value": "600", "label": "Semi-bold" },
+            { "value": "700", "label": "Bold" }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "content_text_color",
+          "label": "Content Text Color",
+          "default": "#222222"
+        },
+        {
+          "type": "range",
+          "id": "content_line_height",
+          "label": "Content Line Height",
+          "default": 1.6,
+          "min": 1,
+          "max": 3,
+          "step": 0.1
+        },
+        {
+          "type": "select",
+          "id": "content_font_family",
+          "label": "Content Font Family",
+          "default": "system",
+          "options": [
+            { "value": "system", "label": "System UI" },
+            { "value": "serif", "label": "Serif" },
+            { "value": "sans-serif", "label": "Sans-serif" },
+            { "value": "monospace", "label": "Monospace" }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "tab_label_font_family",
+          "label": "Tab Label Font Family",
+          "default": "gowun",
+          "options": [
+            { "value": "gowun", "label": "Gowun Batang" },
+            { "value": "system", "label": "System UI" },
+            { "value": "serif", "label": "Serif" },
+            { "value": "sans", "label": "Sans-serif" },
+            { "value": "mono", "label": "Monospace" }
+          ]
+        },
+        { 
+          "type": "select",
+          "id": "tab_title_font_family",
+          "label": "Tab Content Title Font Family",
+          "default": "gowun",
+          "options": [
+            { "value": "gowun", "label": "Gowun Batang" },
+            { "value": "system", "label": "System UI" },
+            { "value": "serif", "label": "Serif" },
+            { "value": "sans", "label": "Sans-serif" },
+            { "value": "mono", "label": "Monospace" }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "tab_image",
+          "label": "Tab Image"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "Tabbed Info",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
+
+<div class="tabbed-info-section section">
+  <h2 class="section-heading">{{ section.settings.section_heading }}</h2>
+
+  <div class="tabs-wrapper">
+    <!-- Tabs navigation -->
+    <ul class="tabs-nav" role="tablist">
+      {% for block in section.blocks %}
+        <li role="presentation" class="tab-nav-item {% if forloop.first %}active{% endif %}">
+          <button
+            id="tab-button-{{ block.id }}"
+            role="tab"
+            aria-controls="tab-panel-{{ block.id }}"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+            data-tab-id="{{ block.id }}"
+            class="tab-button"
+            style="
+              font-family:
+                {% case block.settings.tab_label_font_family %}
+                  {% when 'gowun' %} 'Gowun Batang', serif;
+                  {% when 'system' %} -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                  {% when 'serif' %} serif;
+                  {% when 'sans' %} Arial, Helvetica, sans-serif;
+                  {% when 'mono' %} monospace;
+                  {% else %} inherit;
+                {% endcase %}
+            "
+          >
+            {{ block.settings.tab_label }}
+          </button>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <!-- Tabs content area -->
+    <div class="tabs-content">
+      {% for block in section.blocks %}
+        <div
+          id="tab-panel-{{ block.id }}"
+          role="tabpanel"
+          aria-labelledby="tab-button-{{ block.id }}"
+          class="tab-panel {% if forloop.first %}active{% endif %}"
+          data-tab-id="{{ block.id }}"
+        >
+          <div
+            class="tab-text-content"
+            style="
+              text-align: {{ block.settings.content_text_align }};
+              font-size: {{ block.settings.content_font_size }}px;
+              font-weight: {{ block.settings.content_font_weight }};
+              color: {{ block.settings.content_text_color }};
+              line-height: {{ block.settings.content_line_height }};
+              font-family: 
+                {% case block.settings.content_font_family %}
+                  {% when 'system' %} -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                  {% when 'serif' %} serif;
+                  {% when 'sans-serif' %} Arial, Helvetica, sans-serif;
+                  {% when 'monospace' %} monospace;
+                  {% else %} inherit;
+                {% endcase %}
+            "
+          >
+            <h3 class="tab-content-title"
+              style="
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                font-family:
+                  {% case block.settings.tab_title_font_family %}
+                    {% when 'gowun' %} 'Gowun Batang', serif;
+                    {% when 'system' %} -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    {% when 'inter' %} inter;
+                    {% when 'sans' %} Arial, Helvetica, sans-serif;
+                    {% when 'mono' %} monospace;
+                    {% else %} inherit;
+                  {% endcase %}
+              "
+            >
+              {{ block.settings.tab_title }}
+            </h3>
+            <div class="tab-content-richtext">
+              {{ block.settings.tab_content }}
+            </div>
+          </div>
+          {% if block.settings.tab_image != blank %}
+            <div class="tab-image">
+              <img src="{{ block.settings.tab_image | img_url: 'master' }}" alt="{{ block.settings.tab_label }}" loading="lazy" />
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+{% style %}
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+
+.tabbed-info-section {
+  max-width: 1470px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.section-heading {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.tabs-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 2rem;
+  padding-left: 0;
+  list-style: none;
+  gap: 10px;
+}
+
+.tabs-nav .tab-nav-item {
+  margin: 0;
+}
+
+.tabs-nav .tab-button {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
+  font-weight: 600;
+  font-family: 'Gowun Batang', inter;
+  border-bottom: 1px solid transparent;
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.tabs-nav .tab-button:hover,
+.tabs-nav .tab-nav-item.active .tab-button {
+  color: #121212;
+  border-color: #121212;
+  outline: none;
+}
+
+.tabs-content {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.tab-panel {
+  display: none;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
+}
+
+.tab-panel.active {
+  display: flex;
+}
+
+.tab-text-content {
+  flex: 1 1 50%;
+  max-width: 100%;
+  padding-right: 1rem;
+}
+
+.tab-content-title {
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  font-family: 'Gowun Batang', inter;
+  font-size: 1.4rem;
+  color: #000000;
+}
+
+.tab-content-richtext {
+  max-width: 100%;
+  line-height: 1.6;
+}
+
+.tab-image {
+  flex: 1 1 50%;
+  text-align: right;
+  max-width: 100%;
+}
+
+.tab-image img {
+  max-width: 100%;
+  object-fit: contain;
+  max-height: 550px;
+}
+
+@media (max-width: 1024px) {
+  .tab-panel {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .tab-text-content,
+  .tab-image {
+    flex: 1 1 100%;
+    max-width: 100%;
+    padding: 0;
+    text-align: center;
+  }
+
+  .tab-image {
+    margin-top: 1.5rem;
+  }
+}
+{% endstyle %}
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const tabsNav = document.querySelectorAll('.tab-button');
+    const tabsPanels = document.querySelectorAll('.tab-panel');
+
+    function activateTab(tabId) {
+      tabsNav.forEach(button => {
+        const isActive = button.dataset.tabId === tabId;
+        button.parentElement.classList.toggle('active', isActive);
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        button.tabIndex = isActive ? 0 : -1;
+      });
+      tabsPanels.forEach(panel => {
+        panel.classList.toggle('active', panel.dataset.tabId === tabId);
+      });
+    }
+
+    tabsNav.forEach(button => {
+      button.addEventListener('click', () => {
+        activateTab(button.dataset.tabId);
+      });
+      button.addEventListener('keydown', e => {
+        let index = Array.from(tabsNav).indexOf(e.target);
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          let nextIndex = (index + 1) % tabsNav.length;
+          tabsNav[nextIndex].focus();
+        }
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          let prevIndex = (index - 1 + tabsNav.length) % tabsNav.length;
+          tabsNav[prevIndex].focus();
+        }
+      });
+    });
+  });
+</script>

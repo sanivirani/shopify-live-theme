@@ -1,0 +1,167 @@
+<div class="custom-accordion-wrapper">
+  <div class="accordion-section-header">
+    <h2 class="accordion-title">Need Help? We've Got You Covered</h2>
+    <p class="accordion-subtitle">
+      Find answers to common questions about shipping, payments, and returns below.
+    </p>
+  </div>
+
+  <details class="accordion-item">
+    <summary>
+      <span>🚚 Shipping Information</span>
+      <svg class="accordion-icon" viewBox="0 0 24 24" fill="none">
+        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </summary>
+    <div class="accordion-content">
+      <p>We offer free shipping on all orders over ₹2,00,000. Estimated delivery: 3–5 business days.</p>
+      <p>Standard delivery takes 3–7 business days depending on your location. Express delivery options may be available at checkout.</p>
+      <p>Once your order is shipped, you’ll receive a tracking number via email or SMS.</p>
+      <p>Shipping is free on orders over ₹2,000. Smaller orders will include a nominal fee at checkout.</p>
+    </div>
+  </details>
+
+  <details class="accordion-item">
+    <summary>
+      <span>💳 Payment Methods</span>
+      <svg class="accordion-icon" viewBox="0 0 24 24" fill="none">
+        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </summary>
+    <div class="accordion-content">
+      <p>We accept major credit cards, UPI, Paytm, Net Banking, and Cash on Delivery (COD).</p>
+      <p>Net Banking is available across all leading Indian banks.</p>
+      <p>COD may include a nominal handling fee.</p>
+    </div>
+  </details>
+
+  <details class="accordion-item">
+    <summary>
+      <span>📦 Return & Refund Policy</span>
+      <svg class="accordion-icon" viewBox="0 0 24 24" fill="none">
+        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </summary>
+    <div class="accordion-content">
+      <p>Returns accepted within 7 days of delivery. Refunds processed in 5–7 business days.</p>
+      <p>Products must be unused, with original packaging and tags intact.</p>
+      <p>Exchanges can be processed if preferred over refunds.</p>
+    </div>
+  </details>
+</div>
+
+{% style %}
+.custom-accordion-wrapper {
+  border-radius: 12px;
+  background-color: #fafafa;
+  border: 1px solid #e3e3e3;
+  font-family: inherit;
+  padding: 2rem 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-bottom : 5rem;
+}
+
+.accordion-section-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.accordion-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 0.4rem;
+}
+
+.accordion-subtitle {
+  font-size: 1rem;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.accordion-item {
+  border-bottom: 1px solid #e3e3e3;
+  transition: all 0.3s ease;
+}
+
+.accordion-item:last-child {
+  border-bottom: none;
+}
+
+.accordion-item summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+  background: #fff;
+  transition: background 0.3s ease;
+}
+
+.accordion-item[open] summary {
+  background: #f0f0f0;
+}
+
+.accordion-item summary:hover {
+  background: #f9f9f9;
+}
+
+.accordion-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  transform: rotate(0deg);
+  transition: transform 0.3s ease;
+}
+
+.accordion-item[open] .accordion-icon {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  padding: 0 2.4rem 1rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .custom-accordion-wrapper {
+    padding: 2rem;
+  }
+  .accordion-title {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-accordion-wrapper {
+    padding: 1.5rem 1rem;
+  }
+  .accordion-title {
+    font-size: 1.4rem;
+  }
+  .accordion-subtitle {
+    font-size: 0.95rem;
+  }
+  .accordion-content {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .accordion-item summary {
+    font-size: 0.95rem;
+    padding: 1rem;
+  }
+  .accordion-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+{% endstyle %}

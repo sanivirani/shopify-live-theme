@@ -1,0 +1,353 @@
+{% doc %}
+  @prompt
+    add product description block and typography settings 
+    font-family: Inter;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 14px;
+    leading-trim: NONE;
+    line-height: 22px;
+    letter-spacing: 0px;
+    text-transform: lowercase;
+    
+    font color setting background: #3E3E59;
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-description-{{ ai_gen_id }} {
+    font-family: {{ block.settings.font_family }};
+    font-weight: {{ block.settings.font_weight }};
+    font-style: {{ block.settings.font_style }};
+    font-size: {{ block.settings.font_size }}px;
+    line-height: {{ block.settings.line_height }}px;
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    text-transform: {{ block.settings.text_transform }};
+    color: {{ block.settings.text_color }};
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+    padding: {{ block.settings.padding }}px;
+  }
+
+  .ai-product-description-{{ ai_gen_id }} p {
+    margin-bottom: 1em;
+  }
+
+  .ai-product-description-{{ ai_gen_id }} p:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-product-description-{{ ai_gen_id }} a {
+    color: {{ block.settings.link_color }};
+    text-decoration: {{ block.settings.link_decoration }};
+  }
+
+  .ai-product-description-{{ ai_gen_id }} a:hover {
+    color: {{ block.settings.link_hover_color }};
+  }
+
+  .ai-product-description-{{ ai_gen_id }} ul,
+  .ai-product-description-{{ ai_gen_id }} ol {
+    margin-left: 20px;
+    margin-bottom: 1em;
+  }
+
+  .ai-product-description-{{ ai_gen_id }} li {
+    margin-bottom: 0.5em;
+  }
+
+  .ai-product-description-{{ ai_gen_id }} h1,
+  .ai-product-description-{{ ai_gen_id }} h2,
+  .ai-product-description-{{ ai_gen_id }} h3,
+  .ai-product-description-{{ ai_gen_id }} h4,
+  .ai-product-description-{{ ai_gen_id }} h5,
+  .ai-product-description-{{ ai_gen_id }} h6 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+  }
+
+  .ai-product-description-{{ ai_gen_id }} h1:first-child,
+  .ai-product-description-{{ ai_gen_id }} h2:first-child,
+  .ai-product-description-{{ ai_gen_id }} h3:first-child,
+  .ai-product-description-{{ ai_gen_id }} h4:first-child,
+  .ai-product-description-{{ ai_gen_id }} h5:first-child,
+  .ai-product-description-{{ ai_gen_id }} h6:first-child {
+    margin-top: 0;
+  }
+
+  .ai-product-description-{{ ai_gen_id }} blockquote {
+    border-left: 3px solid {{ block.settings.text_color }};
+    padding-left: 15px;
+    margin-left: 0;
+    opacity: 0.8;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-product-description-{{ ai_gen_id }} {
+      font-size: {{ block.settings.font_size_mobile }}px;
+      line-height: {{ block.settings.line_height_mobile }}px;
+      padding: {{ block.settings.padding_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-product-description-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if block.settings.custom_content != blank %}
+    {{ block.settings.custom_content }}
+  {% else %}
+    {{ product.description }}
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Product Description",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_content",
+      "label": "Use custom content",
+      "default": false
+    },
+    {
+      "type": "richtext",
+      "id": "custom_content",
+      "label": "Custom content",
+      "info": "If left blank, the product description will be used"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "font_family",
+      "label": "Font family",
+      "options": [
+        {
+          "value": "Inter, sans-serif",
+          "label": "Inter"
+        },
+        {
+          "value": "Arial, sans-serif",
+          "label": "Arial"
+        },
+        {
+          "value": "Helvetica, sans-serif",
+          "label": "Helvetica"
+        },
+        {
+          "value": "Georgia, serif",
+          "label": "Georgia"
+        },
+        {
+          "value": "Times New Roman, serif",
+          "label": "Times New Roman"
+        }
+      ],
+      "default": "Inter, sans-serif"
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "select",
+      "id": "font_style",
+      "label": "Font style",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Regular"
+        },
+        {
+          "value": "italic",
+          "label": "Italic"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size (mobile)",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "line_height",
+      "min": 14,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Line height",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "line_height_mobile",
+      "min": 14,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Line height (mobile)",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": -2,
+      "max": 4,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize"
+        }
+      ],
+      "default": "lowercase"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#3E3E59"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#000F9F"
+    },
+    {
+      "type": "color",
+      "id": "link_hover_color",
+      "label": "Link hover color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "link_decoration",
+      "label": "Link decoration",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "underline",
+          "label": "Underline"
+        }
+      ],
+      "default": "underline"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 400,
+      "max": 1200,
+      "step": 50,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 800
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_mobile",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding (mobile)",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Description"
+    }
+  ]
+}
+{% endschema %}

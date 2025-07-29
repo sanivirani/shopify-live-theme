@@ -1,0 +1,678 @@
+<!doctype html>
+
+{% assign lang_code = request.locale.iso_code | downcase %}
+<html
+  class="no-js{% if request.design_mode %} shopify-design-mode{% endif %}"
+
+  lang="{{ lang_code }}"
+
+  dir="{% if lang_code == 'ar' %}rtl{% else %}ltr{% endif %}"
+>
+  <head>
+    {%- render 'stylesheets' -%}
+
+    {%- if settings.favicon != blank -%}
+      <link
+        rel="icon"
+        type="image/png"
+        href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
+      >
+    {%- endif -%}
+
+    {% comment %} This a way to wait for main content to load when navigating to a new page so that the view transitions can work consistently {% endcomment %}
+    <link
+      rel="expect"
+      href="#MainContent"
+      blocking="render"
+      id="view-transition-render-blocker"
+    >
+
+    {%- render 'meta-tags' -%}
+    {%- render 'fonts' -%}
+    {%- render 'scripts' -%}
+    {%- render 'theme-styles-variables' -%}
+    {%- render 'color-schemes' -%}
+
+    {% if request.design_mode %}
+      {%- render 'theme-editor' -%}
+    {% endif %}
+
+    {{ content_for_header }}
+
+    <!-- fullPage.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/fullpage.min.css">
+
+    <!-- In <head> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+
+    <!-- Fancybox CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css">
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js" defer></script>
+  </head>
+
+  <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }} {% if request.locale.iso_code == 'ar' %}lang-ar{% endif %}">
+    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+    <div id="header-group">
+      {% sections 'header-group' %}
+    </div>
+
+    <main
+      id="MainContent"
+      class="content-for-layout"
+      role="main"
+      data-page-transition-enabled="{{ settings.page_transition_enabled }}"
+      data-product-transition="{{ settings.transition_to_main_product }}"
+      data-template="{{ template }}"
+    >
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+    {% render 'search-modal' %}
+
+    {% # theme-check-disable ParserBlockingScript %}
+    <script src="{{ 'critical.js' | asset_url }}"></script>
+    {% # theme-check-enable ParserBlockingScript %}
+
+    {% if settings.quick_add or settings.mobile_quick_add %}
+      {% render 'quick-add-modal' %}
+    {% endif %}
+
+    <!-- custom quick-add-view model style & js -->
+    {% render 'custom-quick-add-view' %}
+
+    {% render 'custom-wishlist-popup' %}
+
+    <div id="custom-toast" class="custom-toast">Added to cart ✓</div>
+    <style>
+      .custom-toast {
+        position: fixed;
+        top: 20vh;
+        left: 30px;
+        background: #721c37;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 99999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        transform: translateY(20px);
+      }
+
+      .custom-toast.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+    </style>
+
+    <!-- fullPage.js JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/fullpage.min.js" defer></script>
+    {{ 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js' | script_tag }}
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        Fancybox.bind('[data-fancybox="product-gallery"]', {
+          Thumbs: { autoStart: true },
+          Toolbar: { display: ['close'] },
+        });
+      });
+    </script>
+
+    <!-- quick add to cart btn script onproduct page -->
+    <script>
+      window.handleQuickAdd = function(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        fetch('/cart/add.js', {
+          method: 'POST',
+          body: formData,
+          headers: { Accept: 'application/json' }
+        })
+        .then(res => res.json())
+        .then(() => fetch('/?sections=cart-drawer,cart-icon-bubble'))
+        .then(res => res.json())
+        .then(sectionData => {
+          const drawer = document.querySelector('cart-drawer-component');
+          const html = sectionData['cart-drawer'];
+          if (drawer && html) {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const newDrawer = doc.querySelector('cart-drawer-component');
+            if (newDrawer && drawer.parentNode) drawer.replaceWith(newDrawer);
+          }
+
+          const tmp = document.createElement('div');
+          tmp.innerHTML = sectionData['cart-icon-bubble'];
+          const newBubble = tmp.querySelector('[data-cart-count]');
+          const oldBubble = document.querySelector('[data-cart-count]');
+          if (newBubble && oldBubble) {
+            oldBubble.innerHTML = newBubble.innerHTML;
+            oldBubble.setAttribute('data-cart-count', newBubble.getAttribute('data-cart-count'));
+          }
+
+          const updatedDrawer = document.querySelector('cart-drawer-component');
+          if (updatedDrawer && typeof updatedDrawer.open === 'function') {
+            updatedDrawer.open();
+          }
+
+          showToast();
+        });
+      };
+
+      window.showToast = function(message = 'Added to cart ✓') {
+        const toast = document.getElementById('custom-toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add('show');
+
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      };
+    </script>
+
+    <div id="wishlist-drawer" class="wishlist-drawer">
+      <div class="wishlist-drawer-header">
+        <h3>Your Wishlist</h3>
+        <button onclick="toggleWishlistDrawer()" class="wishlist-close">✕</button>
+      </div>
+      <div id="wishlist-drawer-body" class="wishlist-drawer-body">
+        <div class="wishlist-grid"></div>
+      </div>
+    </div>
+
+    <style>
+       .wishlist-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 40px;
+        right: 10px;
+        z-index: 10;
+      }
+
+      .wishlist-icon {
+        color: #999;
+        transition: color 0.2s ease;
+      }
+
+      .wishlist-btn.active .wishlist-icon {
+        color: #721c37;
+
+      }
+
+      /* Wishlist drawer */
+      #wishlist-drawer {
+        position: fixed;
+        right: -100%;
+        top: 0;
+        width: 400px;
+        height: 100vh;
+        background: #fff;
+        box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        transition: right 0.3s ease;
+        overflow-y: auto;
+      }
+
+      #wishlist-drawer.open {
+        right: 0;
+      }
+
+      .wishlist-drawer-header {
+        padding: 16px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .wishlist-drawer-body {
+        padding: 16px;
+      }
+
+      .wishlist-grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .wishlist-item {
+        border: 1px solid #eee;
+        padding: 10px;
+        position: relative;
+      }
+
+      .wishlist-remove-btn {
+        display: block;
+        margin-top: 20px;
+        padding: 6px 10px;
+        background-color: #eee;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .wishlist-remove-btn:hover {
+        background-color: #721c37;
+        color : white;
+      }
+    </style>
+
+    <script>
+  const WISHLIST_KEY = 'wishlist_items';
+
+  function getWishlist() {
+    return JSON.parse(localStorage.getItem(WISHLIST_KEY)) || [];
+  }
+
+ function saveWishlist(items) {
+  const uniqueItems = [...new Set(items)];
+  localStorage.setItem(WISHLIST_KEY, JSON.stringify(uniqueItems));
+  updateWishlistCount();
+}
+
+
+  function updateWishlistCount() {
+    const count = getWishlist().length;
+    document.querySelectorAll('[data-wishlist-count]').forEach(el => {
+      el.textContent = count;
+    });
+  }
+
+  function toggleWishlistDrawer() {
+    const drawer = document.getElementById('wishlist-drawer');
+    drawer.classList.toggle('open');
+    if (drawer.classList.contains('open')) {
+      renderWishlistDrawer();
+    }
+  }
+
+  function renderWishlistDrawer() {
+    const wishlist = getWishlist();
+    const container = document.querySelector('#wishlist-drawer-body .wishlist-grid');
+    if (!wishlist.length) {
+      container.innerHTML = '<p>No items in wishlist.</p>';
+      return;
+    }
+
+    fetch(`/search?q=${wishlist.map(h => `handle:${h}`).join(' OR ')}`)
+      .then(res => res.text())
+      .then(html => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const products = doc.querySelectorAll('.product-card');
+        const result = [];
+
+        wishlist.forEach(handle => {
+          const match = Array.from(products).find(p =>
+            p.querySelector(`[href*="${handle}"]`)
+          );
+          if (match) {
+            const clone = match.cloneNode(true);
+            clone.classList.add('wishlist-item');
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'Remove';
+            removeBtn.className = 'wishlist-remove-btn';
+            removeBtn.onclick = () => removeFromWishlist(handle);
+            clone.appendChild(removeBtn);
+            result.push(clone);
+          }
+        });
+
+        container.innerHTML = '';
+        result.forEach(item => container.appendChild(item));
+      });
+  }
+
+  function removeFromWishlist(handle) {
+    let wishlist = getWishlist().filter(h => h !== handle);
+    saveWishlist(wishlist);
+    renderWishlistDrawer();
+
+    // Update all buttons with this handle
+    document.querySelectorAll(`.wishlist-btn[data-product-handle="${handle}"]`).forEach(btn => {
+      btn.classList.remove('active');
+    });
+  }
+
+ function handleWishlistClick(e) {
+  const btn = e.target.closest('.wishlist-btn');
+  if (!btn || !btn.dataset.productHandle) return;
+
+  const handle = btn.dataset.productHandle;
+  let wishlist = getWishlist();
+
+  if (wishlist.includes(handle)) {
+    wishlist = wishlist.filter(h => h !== handle);
+    btn.classList.remove('active');
+  } else {
+    wishlist.push(handle);
+    btn.classList.add('active');
+  }
+
+  saveWishlist(wishlist);
+}
+
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateWishlistCount();
+
+    // Mark wishlist items as active
+    const wishlist = getWishlist();
+    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+      if (wishlist.includes(btn.dataset.productHandle)) {
+        btn.classList.add('active');
+      }
+    });
+
+    // Attach event
+    document.body.addEventListener('click', handleWishlistClick);
+  });
+    </script>
+
+    <!-- Compare Modal -->
+    <div id="compareModal" class="compare-modal" style="display:none;">
+      <div class="compare-modal-overlay" onclick="toggleCompareModal()"></div>
+      <div class="compare-modal-content">
+        <button onclick="toggleCompareModal()" class="close-btn" aria-label="{{ 'compare.close' | t }}">✖</button>
+        <h2>{{ 'compare.title' | t }}</h2>
+        <button class="clear-all-btn" onclick="clearCompare()">
+          {{ 'compare.clear_all' | t }}
+        </button>
+
+        <div id="compareProductsContainer">
+          <p>{{ 'compare.no_products' | t }}</p>
+        </div>
+      </div>
+    </div>
+
+    <style>
+               .compare-modal {
+                 position: fixed;
+                 top: 0; left: 0;
+                 width: 100%; height: 100%;
+                 display: flex;
+                 align-items: center;
+                 justify-content: center;
+                 z-index: 9999;
+               }
+
+               .compare-modal-overlay {
+                 position: absolute;
+                 width: 100%; height: 100%;
+                 background: rgba(0, 0, 0, 0.5);
+               }
+
+               .compare-modal-content {
+                 position: relative;
+                 background: #fff;
+                 width: 95%;
+                 max-width: 1200px;
+                 max-height: 90vh;
+                 overflow-y: auto;
+                 padding: 24px;
+                 border-radius: 12px;
+                 z-index: 10000;
+                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+               }
+
+               .close-btn {
+                 position: absolute;
+                 top: 10px;
+                 right: 10px;
+                 background: none;
+                 border: none;
+                 font-size: 20px;
+                 cursor: pointer;
+                 color: #888;
+               }
+
+               .compare-toast {
+                 position: fixed;
+                 bottom: 20px;
+                 left: 50%;
+                 transform: translateX(-50%);
+                 background: #63F44C;
+                 color: #fff;
+                 padding: 12px 20px;
+                 border-radius: 6px;
+                 z-index: 99999;
+                 font-size: 14px;
+                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+               }
+
+               /* Compare Table Styles */
+               .compare-table {
+                 width: 100%;
+                 border-collapse: collapse;
+                 min-width: 600px;
+               }
+
+               .compare-table th,
+               .compare-table td {
+                 border: 1px solid #ddd;
+                 padding: 12px 10px;
+                 text-align: center;
+                 vertical-align: top;
+               }
+
+               .compare-table th {
+                 background: #f7f7f7;
+                 font-weight: 600;
+                 text-transform: capitalize;
+                 width: 140px;
+               }
+
+               .compare-table td img {
+                  width: 100%;
+                   height: 120px;
+                   object-fit: cover;
+                   display: block;
+               }
+
+               .compare-cell--remove button:hover {
+                 background : #693f4c;
+                 color: white;
+               }
+
+               .clear-all-btn {
+                 position: absolute;
+                 top: 10px;
+                 left: -1px;
+                 background: #721c37;
+                 color: white;
+                 border: none;
+                 padding: 8px 14px;
+                 border-radius: 4px;
+                 cursor: pointer;
+                 font-size: 14px;
+                 transition: background 0.3s;
+               }
+               .clear-all-btn:hover {
+                 background: #693f4c;
+               }
+      .compare-cell--title a   {
+            color : black;
+         }
+
+
+               /* Responsive Table Scroll */
+               @media screen and (max-width: 768px) {
+                 .compare-modal-content {
+                   padding: 16px;
+                 }
+
+                 .compare-table {
+                   display: block;
+                   overflow-x: auto;
+                   white-space: nowrap;
+                 }
+
+                 .compare-table th,
+                 .compare-table td {
+                   padding: 8px;
+                   font-size: 13px;
+                 }
+
+                 .compare-table td img {
+                   max-width: 80px;
+                 }
+               }
+    </style>
+
+    <script>
+  const MAX_COMPARE = 5;
+
+function getCompareList() {
+  return JSON.parse(localStorage.getItem('compareList') || '[]');
+}
+
+function setCompareList(list) {
+  localStorage.setItem('compareList', JSON.stringify(list));
+}
+
+function updateCompareCount() {
+  const count = getCompareList().length;
+  document.querySelectorAll('[data-compare-count]').forEach(el => {
+    el.textContent = count;
+    el.style.display = count > 0 ? 'inline-block' : 'none';
+  });
+}
+
+function updateCompareIcons() {
+  const list = getCompareList();
+  document.querySelectorAll('.compare-button').forEach(btn => {
+    const handle = btn.dataset.handle;
+    btn.classList.toggle('active', list.includes(handle));
+  });
+}
+
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'compare-toast';
+  toast.innerText = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function toggleCompare(handle) {
+  let list = getCompareList();
+  const index = list.indexOf(handle);
+  if (index > -1) {
+    list.splice(index, 1);
+  } else {
+    if (list.length >= MAX_COMPARE) {
+      showToast("You can compare up to 5 products.");
+      return;
+    }
+    list.push(handle);
+  }
+  setCompareList(list);
+  updateCompareCount();
+  updateCompareIcons();
+}
+
+function toggleCompareModal() {
+  const modal = document.getElementById('compareModal');
+  modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+  if (modal.style.display === 'flex') {
+    renderCompareProducts();
+  }
+}
+
+function removeFromCompare(handle) {
+  let list = getCompareList().filter(h => h !== handle);
+  setCompareList(list);
+  updateCompareCount();
+  renderCompareProducts();
+  updateCompareIcons();
+}
+
+function renderCompareProducts() {
+  const handles = getCompareList();
+  const container = document.getElementById('compareProductsContainer');
+
+  if (handles.length === 0) {
+    container.innerHTML = '<p>No products to compare.</p>';
+    return;
+  }
+
+  container.innerHTML = '<p>Loading products...</p>';
+
+  Promise.all(handles.map(handle =>
+    fetch(`/products/${handle}?view=compare-item`).then(r => r.text())
+  )).then(columns => {
+    // Each item in `columns` is <td>...</td> repeated 8 times (for each row)
+    const rows = ["image", "title", "vendor", "type", "options", "availability", "price", "remove"];
+
+    let table = `<div style="overflow-x:auto;"><table class="compare-table"><tbody>`;
+    rows.forEach((row, i) => {
+      table += `<tr class="compare-row compare-row--${row}"><th>${row.charAt(0).toUpperCase() + row.slice(1)}</th>`;
+      columns.forEach(colHTML => {
+        const temp = document.createElement('table');
+        temp.innerHTML = `<tr>${colHTML}</tr>`;
+        const cell = temp.querySelectorAll('td')[i];
+        table += cell ? cell.outerHTML : "<td></td>";
+      });
+      table += `</tr>`;
+    });
+    table += `</tbody></table></div>`;
+
+    container.innerHTML = table;
+  }).catch(err => {
+    container.innerHTML = '<p>Failed to load products.</p>';
+    console.error(err);
+  });
+}
+
+      function clearCompare() {
+        setCompareList([]);
+        updateCompareCount();
+        updateCompareIcons();
+        renderCompareProducts();
+    }
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  updateCompareCount();
+  updateCompareIcons();
+
+  document.body.addEventListener('click', function (e) {
+    const compareBtn = e.target.closest('.compare-button');
+    if (compareBtn) {
+      const handle = compareBtn.dataset.handle;
+      toggleCompare(handle);
+    }
+  });
+
+  
+});
+    </script>
+
+    <!-- Fallback (if Liquid doesn’t work due to AJAX reloads) -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var lang = document.documentElement.lang;
+        if (lang.startsWith('ar')) {
+          document.body.classList.add('lang-ar', 'rtl');
+          document.body.classList.remove('ltr');
+        } else {
+          document.body.classList.add('ltr');
+          document.body.classList.remove('lang-ar', 'rtl');
+        }
+      });
+    </script>
+  </body>
+</html>

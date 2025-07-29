@@ -1,0 +1,133 @@
+{% doc %}
+  @prompt
+    make divider and settings 
+    layout is 
+    
+    width: 1274;
+    height: 1;
+    angle: 0 deg;
+    opacity: 1;
+    border-top-width: 1px;
+    
+    border-top: 1px solid #CBCBCB
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-divider-{{ ai_gen_id }} {
+    width: {{ block.settings.width }}%;
+    height: {{ block.settings.height }}px;
+    margin: {{ block.settings.margin }}px auto;
+    opacity: {{ block.settings.opacity }};
+    border: none;
+    border-top: {{ block.settings.border_width }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
+    transform: rotate({{ block.settings.angle }}deg);
+    max-width: 100%;
+  }
+{% endstyle %}
+
+<hr class="ai-divider-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+
+{% schema %}
+{
+  "name": "Divider",
+  "tag": null,
+  "settings": [
+    {
+      "type": "range",
+      "id": "width",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Width",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "height",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Height",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "angle",
+      "min": 0,
+      "max": 90,
+      "step": 1,
+      "unit": "°",
+      "label": "Angle",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "opacity",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.1,
+      "label": "Opacity",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 1
+    },
+    {
+      "type": "select",
+      "id": "border_style",
+      "label": "Border style",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "dashed",
+          "label": "Dashed"
+        },
+        {
+          "value": "dotted",
+          "label": "Dotted"
+        },
+        {
+          "value": "double",
+          "label": "Double"
+        }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#CBCBCB"
+    },
+    {
+      "type": "range",
+      "id": "margin",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Margin",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Divider"
+    }
+  ]
+}
+{% endschema %}

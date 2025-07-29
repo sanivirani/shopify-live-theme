@@ -1,0 +1,301 @@
+<div id="estimate-shipping-tab" class="shipping-estimate-wrapper">
+  <h4>Estimate your Shipping</h4>
+
+   <!-- <button id="toggle-shipping-estimate" class="btn btn-toggle-shipping">Estimate Shipping</button> -->
+
+
+  <div class="form-group">
+    <label for="estimate-country">Country</label>
+    <select id="estimate-country" class="form-control" name="country" autocomplete="country">
+      {{ country_option_tags }}
+    </select>
+  </div>
+
+  <div class="form-group" id="province-container">
+    <label for="estimate-province">Province/State</label>
+    <select id="estimate-province" class="form-control" name="province">
+      <option>Select a country first</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="estimate-zip">ZIP/Postal Code</label>
+    <input type="text" id="estimate-zip" class="form-control" placeholder="e.g. 07001 or 9500-000">
+  </div>
+
+  <div class="button-group">
+    <button class="btn btn-estimate" onclick="drawerShippingEstimate()">Estimate</button>
+    <button class="btn btn-cancel" onclick="hideEstimateTab()">Cancel</button>
+  </div>
+
+  <div id="estimate-errors" class="form-errors"></div>
+  <div id="estimate-results" class="form-results"></div>
+</div>
+
+<script>
+  if (typeof Shopify === 'undefined') {
+    Shopify = {};
+  }
+
+  Shopify.CountryProvinceSelector = function (country_domid, province_domid, options) {
+    this.countryEl = document.getElementById(country_domid);
+    this.provinceEl = document.getElementById(province_domid);
+    this.containerEl = document.getElementById(options.hideElement) || this.provinceEl.closest('.form-group');
+
+    const self = this;
+
+    this.countryEl.addEventListener('change', function () {
+      const selected = this.options[this.selectedIndex];
+      const provinces = selected.getAttribute('data-provinces');
+
+      if (provinces && provinces !== '[]') {
+        const provinceArray = JSON.parse(provinces);
+        self._buildProvinceOptions(provinceArray);
+        self._showProvinceContainer();
+      } else {
+        self._clearProvinceOptions();
+        self._hideProvinceContainer();
+      }
+    });
+
+    setTimeout(() => {
+      const event = new Event('change');
+      self.countryEl.dispatchEvent(event);
+    }, 0);
+  };
+
+  Shopify.CountryProvinceSelector.prototype = {
+    _buildProvinceOptions: function (provinces) {
+      this.provinceEl.innerHTML = '';
+      provinces.forEach(function (province) {
+        const opt = document.createElement('option');
+        opt.value = province[0];
+        opt.innerHTML = province[1];
+        this.provinceEl.appendChild(opt);
+      }, this);
+      this.provinceEl.disabled = false;
+    },
+    _clearProvinceOptions: function () {
+      this.provinceEl.innerHTML = '<option>Province/state not required</option>';
+      this.provinceEl.disabled = true;
+    },
+    _hideProvinceContainer: function () {
+      if (this.containerEl) this.containerEl.style.display = 'none';
+    },
+    _showProvinceContainer: function () {
+      if (this.containerEl) this.containerEl.style.display = '';
+    }
+  };
+
+  document.addEventListener("DOMContentLoaded", function () {
+    new Shopify.CountryProvinceSelector('estimate-country', 'estimate-province', {
+      hideElement: 'province-container'
+    });
+  });
+
+  function drawerShippingEstimate() {
+    const countrySelect = document.getElementById("estimate-country");
+    const provinceSelect = document.getElementById("estimate-province");
+    const zipInput = document.getElementById("estimate-zip");
+
+    const country = countrySelect.options[countrySelect.selectedIndex].text;
+    const province = provinceSelect.disabled ? "" : provinceSelect.value;
+    const zip = zipInput.value.trim();
+
+    const errorsDiv = document.getElementById("estimate-errors");
+    const resultsDiv = document.getElementById("estimate-results");
+
+    errorsDiv.innerHTML = '';
+    resultsDiv.innerHTML = '';
+
+    if (!country || !zip || (!province && !provinceSelect.disabled)) {
+      errorsDiv.innerHTML = "Please fill all required fields.";
+      return;
+    }
+
+    const shippingAddress = {
+      country: country,
+      zip: zip
+    };
+
+    if (!provinceSelect.disabled && province) {
+      shippingAddress.province = province;
+    }
+
+    resultsDiv.innerHTML = "🔄 Fetching shipping rates...";
+
+    const currencyMap = {
+      "United States": { symbol: "$", code: "USD" },
+      "India": { symbol: "₹", code: "INR" },
+      "Canada": { symbol: "CA$", code: "CAD" },
+      "United Kingdom": { symbol: "£", code: "GBP" },
+      "Australia": { symbol: "A$", code: "AUD" },
+      "Germany": { symbol: "€", code: "EUR" },
+      "France": { symbol: "€", code: "EUR" },
+      "Japan": { symbol: "¥", code: "JPY" },
+      "China": { symbol: "¥", code: "CNY" }
+    };
+
+    const exchangeRates = {
+      INR: 83.0,
+      CAD: 1.35,
+      GBP: 0.77,
+      AUD: 1.5,
+      EUR: 0.92,
+      JPY: 155.0,
+      CNY: 7.25,
+      USD: 1
+    };
+
+    fetch('/cart/shipping_rates.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shipping_address: shippingAddress })
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("422");
+        return res.json();
+      })
+      .then(data => {
+        const { symbol = '', code = 'USD' } = currencyMap[country] || {};
+        const exchangeRate = exchangeRates[code] || 1;
+
+        if (data.shipping_rates && data.shipping_rates.length > 0) {
+          resultsDiv.innerHTML = data.shipping_rates.map(rate => {
+            const usdPrice = parseFloat(rate.price.replace(/[^0-9.]/g, ''));
+            const converted = usdPrice * exchangeRate;
+
+            const formatted = new Intl.NumberFormat(undefined, {
+              style: 'currency',
+              currency: code
+            }).format(converted);
+
+            return `<p><strong>${rate.name}</strong>: ${formatted}</p>`;
+          }).join('');
+        } else {
+          resultsDiv.innerHTML = "No shipping rates found.";
+        }
+      })
+      .catch((error) => {
+        errorsDiv.innerHTML = "❌ Unable to fetch rates. Check your zipcode.";
+        console.error("Shipping fetch error:", error);
+      });
+  }
+
+  function hideEstimateTab() {
+    document.getElementById("estimate-shipping-tab").style.display = "none";
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+  const toggleBtn = document.getElementById("toggle-shipping-estimate");
+  const estimateTab = document.getElementById("estimate-shipping-tab");
+
+  toggleBtn.addEventListener("click", () => {
+    const isVisible = estimateTab.style.display === "block";
+    estimateTab.style.display = isVisible ? "none" : "block";
+  });
+
+  // Hide it initially
+  estimateTab.style.display = "none";
+});
+</script>
+
+<style>
+    .shipping-estimate-wrapper {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      font-family: system-ui, sans-serif;
+      max-width: 420px;
+    }
+
+    .shipping-estimate-wrapper h4 {
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      font-size: 14px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-estimate {
+      background-color: #721c37;
+      color: #fff;
+    }
+  
+    .btn-estimate:hover {
+      background-color: #333;
+      color: #fff;
+    }
+
+    .btn-cancel {
+      background-color: #f3f4f6;
+      color: #111;
+    }
+  
+    .btn-cancel {
+      background-color: #f3f4f6;
+      color: #111;
+      border-color : #721c37
+    }
+
+    .form-errors {
+      margin-top: 10px;
+      color: red;
+      font-size: 13px;
+    }
+
+    .form-results {
+      margin-top: 12px;
+      font-size: 15px;
+      color: #059669;
+    }
+
+    .btn-toggle-shipping {
+    background-color: #2563eb;
+    color: white;
+    padding: 10px 16px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 12px;
+  }
+  .btn-toggle-shipping:hover {
+    background-color: #1e40af;
+  }
+</style>

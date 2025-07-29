@@ -1,0 +1,39 @@
+<div class="wishlist-page page-width">
+  <h1>My Wishlist</h1>
+  <div id="wishlist-items">Loading...</div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const WISHLIST_KEY = 'wishlist_items';
+    const wishlist = JSON.parse(localStorage.getItem(WISHLIST_KEY)) || [];
+    const container = document.getElementById('wishlist-items');
+
+    if (!wishlist.length) {
+      container.innerHTML = '<p>Your wishlist is empty.</p>';
+      return;
+    }
+
+    // Fetch products using predictive search
+    fetch(`/search?q=${wishlist.map(h => `handle:${h}`).join(' OR ')}`)
+      .then(res => res.text())
+      .then(html => {
+        const parser = new DOMParser().parseFromString(html, 'text/html');
+        const productCards = parser.querySelectorAll('.product-card');
+        container.innerHTML = '';
+
+        wishlist.forEach(handle => {
+          const match = Array.from(productCards).find(card =>
+            card.querySelector(`[href*="${handle}"]`)
+          );
+          if (match) {
+            container.appendChild(match.cloneNode(true));
+          }
+        });
+
+        if (!container.children.length) {
+          container.innerHTML = '<p>Could not load wishlist items.</p>';
+        }
+      });
+  });
+</script>
