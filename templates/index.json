@@ -402,69 +402,11 @@
       ],
       "name": "Parallax Slider",
       "settings": {}
-    },
-    "fancybox_gallery_cAWk7F": {
-      "type": "fancybox-gallery",
-      "blocks": {
-        "image_block_7GBTNQ": {
-          "type": "image_block",
-          "settings": {
-            "image": "shopify://shop_images/mobile-phone-and-gimbal-in-hand.jpg",
-            "caption": "Gallery Image"
-          }
-        },
-        "image_block_HQDwne": {
-          "type": "image_block",
-          "settings": {
-            "image": "shopify://shop_images/download_1.jpg",
-            "caption": "Gallery Image"
-          }
-        },
-        "image_block_bCQnde": {
-          "type": "image_block",
-          "settings": {
-            "image": "shopify://shop_images/hand-about-to-pour-stove-top-coffee.jpg",
-            "caption": "Gallery Image"
-          }
-        },
-        "image_block_TDMtXi": {
-          "type": "image_block",
-          "settings": {
-            "image": "shopify://shop_images/house-plant-in-white-pot.jpg",
-            "caption": "Gallery Image"
-          }
-        },
-        "image_block_VTyPf7": {
-          "type": "image_block",
-          "settings": {
-            "image": "shopify://shop_images/portrait-of-illuminated-laptop.jpg",
-            "caption": "Gallery Image"
-          }
-        },
-        "image_block_GVdRDc": {
-          "type": "image_block",
-          "settings": {
-            "image": "shopify://shop_images/240_F_903743372_yy6ST2I1l6VC6FDCBvt1OiMf0A8kY6DD.jpg",
-            "caption": "Gallery Image"
-          }
-        }
-      },
-      "block_order": [
-        "image_block_7GBTNQ",
-        "image_block_HQDwne",
-        "image_block_bCQnde",
-        "image_block_TDMtXi",
-        "image_block_VTyPf7",
-        "image_block_GVdRDc"
-      ],
-      "name": "Fancybox Gallery",
-      "settings": {}
     }
   },
   "order": [
     "hero_jVaWmY",
     "product_list_qU3bEB",
-    "parallax_slider_RVwJ4g",
-    "fancybox_gallery_cAWk7F"
+    "parallax_slider_RVwJ4g"
   ]
 }
