@@ -1820,6 +1820,11 @@
         "label": "t:settings.checkout_buttons",
         "info": "t:info.checkout_buttons",
         "default": true
+      },
+      {
+        "type": "collection",
+        "id": "cart-recommedation",
+        "label": "Select collection"
       }
     ]
   },

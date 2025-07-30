@@ -87,11 +87,17 @@
               <!--CUSTOM SHIPPING CALCULATOR -->
               {% render 'estimate-shipping' %}
               <!-- END SHIPPING CALCULATOR -->
-
+            
               {% render 'cart-products' %}
+
+              <!-- custom cart product recommendation -->
+              {% render 'custom-cart-recommendation' %}
+
+                
             </scroll-hint>
 
             <div class="cart-drawer__summary">
+            
               {% render 'cart-summary' %}
             </div>
           </div>
