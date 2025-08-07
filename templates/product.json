@@ -899,6 +899,36 @@
       ],
       "name": "Accordion",
       "settings": {}
+    },
+    "feature_block_section_QxycRJ": {
+      "type": "feature-block-section",
+      "blocks": {
+        "feature_rr6UXn": {
+          "type": "feature",
+          "settings": {
+            "feature_block": "lifestyle-look"
+          }
+        },
+        "feature_8YP4QJ": {
+          "type": "feature",
+          "settings": {
+            "feature_block": "1-customer-favorite"
+          }
+        },
+        "feature_TbJxhd": {
+          "type": "feature",
+          "settings": {
+            "feature_block": "lifestyle-look"
+          }
+        }
+      },
+      "block_order": [
+        "feature_rr6UXn",
+        "feature_8YP4QJ",
+        "feature_TbJxhd"
+      ],
+      "name": "Feature Block Grid",
+      "settings": {}
     }
   },
   "order": [
@@ -910,6 +940,7 @@
     "product_recommendations_qggXJq",
     "1752582100a7136002",
     "tab_product_carousel_wJBLkY",
-    "custom_accordion_section_Uj4NRL"
+    "custom_accordion_section_Uj4NRL",
+    "feature_block_section_QxycRJ"
   ]
 }

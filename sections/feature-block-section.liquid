@@ -1,0 +1,133 @@
+<section class="feature-block-grid">
+  <div class="container">
+    <div class="feature-grid">
+      {% for block in section.blocks %}
+        {% assign item = block.settings.feature_block %}
+        {% assign image = item.image.value %}
+        {% assign product = item.product_ref.value %}
+
+        <div class="feature-card">
+          {% if image %}
+            <img src="{{ image | image_url: width: 600 }}" alt="{{ item.title | escape }}" class="feature-image">
+          {% endif %}
+          <h3 class="feature-title">{{ item.title }}</h3>
+          <p class="feature-description">{{ item.description }}</p>
+          {% if product %}
+            <a href="{{ product.url }}" class="btn-feature">View Product</a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+
+
+<style>
+.feature-block-grid {
+  width: 100%;
+  padding: 60px 20px;
+  background-color: #f5f5f5;
+}
+
+.feature-block-grid .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 5%; /* Just like standard Shopify sections */
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+  justify-content: center; /* Ensures cards are centered */
+}
+
+/* Single card centering — no need for a separate class */
+.feature-grid:has(.feature-card:nth-child(2)) {
+  justify-content: center;
+}
+
+.feature-card {
+  text-align: center;
+  background: #fff;
+  border-radius: 10px;
+  padding: 30px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+  max-width: 400px;
+  margin: auto;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-image {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  margin-inline: auto;
+}
+
+.feature-title {
+  font-size: 1.6rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.feature-description {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.btn-feature {
+  display: inline-block;
+  background-color: #721c37;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-feature:hover {
+  background-color: #8f324f;
+}
+
+</style>
+
+
+
+{% schema %}
+{
+  "name": "Feature Block Grid",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature Item",
+      "settings": [
+        {
+          "type": "metaobject",
+          "label": "Feature Block Object",
+          "id": "feature_block",
+          "metaobject_type": "feature_block"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Feature Block Grid",
+      "category": "Custom",
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

@@ -411,12 +411,43 @@
         "collection": "best-selling",
         "limit": 12
       }
+    },
+    "feature_block_section_RfQCXL": {
+      "type": "feature-block-section",
+      "blocks": {
+        "feature_xW3icF": {
+          "type": "feature",
+          "settings": {
+            "feature_block": "1-customer-favorite"
+          }
+        },
+        "feature_tjdT3B": {
+          "type": "feature",
+          "settings": {
+            "feature_block": "the-self-care-bundle"
+          }
+        },
+        "feature_EtcHtU": {
+          "type": "feature",
+          "settings": {
+            "feature_block": "limited-collection"
+          }
+        }
+      },
+      "block_order": [
+        "feature_xW3icF",
+        "feature_tjdT3B",
+        "feature_EtcHtU"
+      ],
+      "name": "Feature Block",
+      "settings": {}
     }
   },
   "order": [
     "hero_jVaWmY",
     "product_list_qU3bEB",
     "parallax_slider_RVwJ4g",
-    "custom_carousel_wxPyNi"
+    "custom_carousel_wxPyNi",
+    "feature_block_section_RfQCXL"
   ]
 }

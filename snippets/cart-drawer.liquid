@@ -33,7 +33,7 @@
     class="cart-drawer__dialog dialog-modal dialog-drawer color-{{ settings.drawer_color_scheme }}{% if cart.empty? %} cart-drawer--empty{%endif%}"
     scroll-lock
   >
-    <div class="cart-drawer__inner">
+    <div class="cart-drawer__inner" ">
       <cart-items-component
         class="cart-items-component"
         data-section-id="{{ section.id }}"
@@ -84,10 +84,12 @@
             style="--header-height: 60px;"
           >
             <scroll-hint class="cart-drawer__items">
+              {% comment %}
               <!--CUSTOM SHIPPING CALCULATOR -->
-              {% render 'estimate-shipping' %}
+               {% render 'estimate-shipping' %} 
               <!-- END SHIPPING CALCULATOR -->
-            
+             {% endcomment %}
+          
               {% render 'cart-products' %}
 
               <!-- custom cart product recommendation -->
@@ -107,9 +109,8 @@
   </dialog>
 </cart-drawer-component>
 
-<div id="toast-container" class="toast-container hidden">
-  <div class="toast-message">Product added to cart successfully!</div>
-</div>
+
+
 
 {% stylesheet %}
           .cart-items-component {
@@ -211,30 +212,6 @@
         .progress-fill.discount {
           background-color: #ff6f00;
         }
-
-
-    .toast-container {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #0a8754;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      z-index: 9999;
-      font-weight: 600;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease, bottom 0.3s ease;
-    }
-
-    .toast-container.show {
-      opacity: 1;
-      pointer-events: auto;
-      bottom: 40px;
-    }
 
     /* .shipping-estimate-bar {
     background-color: #f2f2f2;

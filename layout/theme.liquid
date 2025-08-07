@@ -110,6 +110,48 @@
       }
     </style>
 
+    <!-- cart message -->
+    <div
+      id="toast-message"
+      style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: red;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        z-index: 10000;
+      "
+    >
+      Product added to cart!
+    </div>
+
+    <!--
+      <script>
+              function showToast(message = 'Added to cart!') {
+          const toast = document.getElementById('toast-message');
+          if (!toast) return;
+
+          toast.textContent = message;
+          toast.style.opacity = '1';
+          toast.style.pointerEvents = 'auto';
+          toast.style.transform = 'translateY(0)';
+
+          setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.pointerEvents = 'none';
+            toast.style.transform = 'translateY(20px)';
+          }, 2500);
+        }
+      </script>
+    -->
+
     <!-- fullPage.js JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/fullpage.min.js" defer></script>
     {{ 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js' | script_tag }}
@@ -125,7 +167,7 @@
 
     <!-- quick add to cart btn script onproduct page -->
     <script>
-      window.handleQuickAdd = function(event) {
+      window.handleQuickAdd = function (event) {
         event.preventDefault();
 
         const form = event.target;
@@ -134,39 +176,39 @@
         fetch('/cart/add.js', {
           method: 'POST',
           body: formData,
-          headers: { Accept: 'application/json' }
+          headers: { Accept: 'application/json' },
         })
-        .then(res => res.json())
-        .then(() => fetch('/?sections=cart-drawer,cart-icon-bubble'))
-        .then(res => res.json())
-        .then(sectionData => {
-          const drawer = document.querySelector('cart-drawer-component');
-          const html = sectionData['cart-drawer'];
-          if (drawer && html) {
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            const newDrawer = doc.querySelector('cart-drawer-component');
-            if (newDrawer && drawer.parentNode) drawer.replaceWith(newDrawer);
-          }
+          .then((res) => res.json())
+          .then(() => fetch('/?sections=cart-drawer,cart-icon-bubble'))
+          .then((res) => res.json())
+          .then((sectionData) => {
+            const drawer = document.querySelector('cart-drawer-component');
+            const html = sectionData['cart-drawer'];
+            if (drawer && html) {
+              const doc = new DOMParser().parseFromString(html, 'text/html');
+              const newDrawer = doc.querySelector('cart-drawer-component');
+              if (newDrawer && drawer.parentNode) drawer.replaceWith(newDrawer);
+            }
 
-          const tmp = document.createElement('div');
-          tmp.innerHTML = sectionData['cart-icon-bubble'];
-          const newBubble = tmp.querySelector('[data-cart-count]');
-          const oldBubble = document.querySelector('[data-cart-count]');
-          if (newBubble && oldBubble) {
-            oldBubble.innerHTML = newBubble.innerHTML;
-            oldBubble.setAttribute('data-cart-count', newBubble.getAttribute('data-cart-count'));
-          }
+            const tmp = document.createElement('div');
+            tmp.innerHTML = sectionData['cart-icon-bubble'];
+            const newBubble = tmp.querySelector('[data-cart-count]');
+            const oldBubble = document.querySelector('[data-cart-count]');
+            if (newBubble && oldBubble) {
+              oldBubble.innerHTML = newBubble.innerHTML;
+              oldBubble.setAttribute('data-cart-count', newBubble.getAttribute('data-cart-count'));
+            }
 
-          const updatedDrawer = document.querySelector('cart-drawer-component');
-          if (updatedDrawer && typeof updatedDrawer.open === 'function') {
-            updatedDrawer.open();
-          }
+            const updatedDrawer = document.querySelector('cart-drawer-component');
+            if (updatedDrawer && typeof updatedDrawer.open === 'function') {
+              updatedDrawer.open();
+            }
 
-          showToast();
-        });
+            showToast();
+          });
       };
 
-      window.showToast = function(message = 'Added to cart ✓') {
+      window.showToast = function (message = 'Added to cart ✓') {
         const toast = document.getElementById('custom-toast');
         if (!toast) return;
         toast.textContent = message;
@@ -272,114 +314,110 @@
     </style>
 
     <script>
-  const WISHLIST_KEY = 'wishlist_items';
+      const WISHLIST_KEY = 'wishlist_items';
 
-  function getWishlist() {
-    return JSON.parse(localStorage.getItem(WISHLIST_KEY)) || [];
-  }
+      function getWishlist() {
+        return JSON.parse(localStorage.getItem(WISHLIST_KEY)) || [];
+      }
 
- function saveWishlist(items) {
-  const uniqueItems = [...new Set(items)];
-  localStorage.setItem(WISHLIST_KEY, JSON.stringify(uniqueItems));
-  updateWishlistCount();
-}
+      function saveWishlist(items) {
+        const uniqueItems = [...new Set(items)];
+        localStorage.setItem(WISHLIST_KEY, JSON.stringify(uniqueItems));
+        updateWishlistCount();
+      }
 
+      function updateWishlistCount() {
+        const count = getWishlist().length;
+        document.querySelectorAll('[data-wishlist-count]').forEach((el) => {
+          el.textContent = count;
+        });
+      }
 
-  function updateWishlistCount() {
-    const count = getWishlist().length;
-    document.querySelectorAll('[data-wishlist-count]').forEach(el => {
-      el.textContent = count;
-    });
-  }
+      function toggleWishlistDrawer() {
+        const drawer = document.getElementById('wishlist-drawer');
+        drawer.classList.toggle('open');
+        if (drawer.classList.contains('open')) {
+          renderWishlistDrawer();
+        }
+      }
 
-  function toggleWishlistDrawer() {
-    const drawer = document.getElementById('wishlist-drawer');
-    drawer.classList.toggle('open');
-    if (drawer.classList.contains('open')) {
-      renderWishlistDrawer();
-    }
-  }
+      function renderWishlistDrawer() {
+        const wishlist = getWishlist();
+        const container = document.querySelector('#wishlist-drawer-body .wishlist-grid');
+        if (!wishlist.length) {
+          container.innerHTML = '<p>No items in wishlist.</p>';
+          return;
+        }
 
-  function renderWishlistDrawer() {
-    const wishlist = getWishlist();
-    const container = document.querySelector('#wishlist-drawer-body .wishlist-grid');
-    if (!wishlist.length) {
-      container.innerHTML = '<p>No items in wishlist.</p>';
-      return;
-    }
+        fetch(`/search?q=${wishlist.map((h) => `handle:${h}`).join(' OR ')}`)
+          .then((res) => res.text())
+          .then((html) => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const products = doc.querySelectorAll('.product-card');
+            const result = [];
 
-    fetch(`/search?q=${wishlist.map(h => `handle:${h}`).join(' OR ')}`)
-      .then(res => res.text())
-      .then(html => {
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        const products = doc.querySelectorAll('.product-card');
-        const result = [];
+            wishlist.forEach((handle) => {
+              const match = Array.from(products).find((p) => p.querySelector(`[href*="${handle}"]`));
+              if (match) {
+                const clone = match.cloneNode(true);
+                clone.classList.add('wishlist-item');
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remove';
+                removeBtn.className = 'wishlist-remove-btn';
+                removeBtn.onclick = () => removeFromWishlist(handle);
+                clone.appendChild(removeBtn);
+                result.push(clone);
+              }
+            });
 
-        wishlist.forEach(handle => {
-          const match = Array.from(products).find(p =>
-            p.querySelector(`[href*="${handle}"]`)
-          );
-          if (match) {
-            const clone = match.cloneNode(true);
-            clone.classList.add('wishlist-item');
-            const removeBtn = document.createElement('button');
-            removeBtn.textContent = 'Remove';
-            removeBtn.className = 'wishlist-remove-btn';
-            removeBtn.onclick = () => removeFromWishlist(handle);
-            clone.appendChild(removeBtn);
-            result.push(clone);
+            container.innerHTML = '';
+            result.forEach((item) => container.appendChild(item));
+          });
+      }
+
+      function removeFromWishlist(handle) {
+        let wishlist = getWishlist().filter((h) => h !== handle);
+        saveWishlist(wishlist);
+        renderWishlistDrawer();
+
+        // Update all buttons with this handle
+        document.querySelectorAll(`.wishlist-btn[data-product-handle="${handle}"]`).forEach((btn) => {
+          btn.classList.remove('active');
+        });
+      }
+
+      function handleWishlistClick(e) {
+        const btn = e.target.closest('.wishlist-btn');
+        if (!btn || !btn.dataset.productHandle) return;
+
+        const handle = btn.dataset.productHandle;
+        let wishlist = getWishlist();
+
+        if (wishlist.includes(handle)) {
+          wishlist = wishlist.filter((h) => h !== handle);
+          btn.classList.remove('active');
+        } else {
+          wishlist.push(handle);
+          btn.classList.add('active');
+        }
+
+        saveWishlist(wishlist);
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        updateWishlistCount();
+
+        // Mark wishlist items as active
+        const wishlist = getWishlist();
+        document.querySelectorAll('.wishlist-btn').forEach((btn) => {
+          if (wishlist.includes(btn.dataset.productHandle)) {
+            btn.classList.add('active');
           }
         });
 
-        container.innerHTML = '';
-        result.forEach(item => container.appendChild(item));
+        // Attach event
+        document.body.addEventListener('click', handleWishlistClick);
       });
-  }
-
-  function removeFromWishlist(handle) {
-    let wishlist = getWishlist().filter(h => h !== handle);
-    saveWishlist(wishlist);
-    renderWishlistDrawer();
-
-    // Update all buttons with this handle
-    document.querySelectorAll(`.wishlist-btn[data-product-handle="${handle}"]`).forEach(btn => {
-      btn.classList.remove('active');
-    });
-  }
-
- function handleWishlistClick(e) {
-  const btn = e.target.closest('.wishlist-btn');
-  if (!btn || !btn.dataset.productHandle) return;
-
-  const handle = btn.dataset.productHandle;
-  let wishlist = getWishlist();
-
-  if (wishlist.includes(handle)) {
-    wishlist = wishlist.filter(h => h !== handle);
-    btn.classList.remove('active');
-  } else {
-    wishlist.push(handle);
-    btn.classList.add('active');
-  }
-
-  saveWishlist(wishlist);
-}
-
-
-  document.addEventListener('DOMContentLoaded', () => {
-    updateWishlistCount();
-
-    // Mark wishlist items as active
-    const wishlist = getWishlist();
-    document.querySelectorAll('.wishlist-btn').forEach(btn => {
-      if (wishlist.includes(btn.dataset.productHandle)) {
-        btn.classList.add('active');
-      }
-    });
-
-    // Attach event
-    document.body.addEventListener('click', handleWishlistClick);
-  });
     </script>
 
     <!-- Compare Modal -->
@@ -533,137 +571,136 @@
     </style>
 
     <script>
-  const MAX_COMPARE = 5;
+      const MAX_COMPARE = 5;
 
-function getCompareList() {
-  return JSON.parse(localStorage.getItem('compareList') || '[]');
-}
+      function getCompareList() {
+        return JSON.parse(localStorage.getItem('compareList') || '[]');
+      }
 
-function setCompareList(list) {
-  localStorage.setItem('compareList', JSON.stringify(list));
-}
+      function setCompareList(list) {
+        localStorage.setItem('compareList', JSON.stringify(list));
+      }
 
-function updateCompareCount() {
-  const count = getCompareList().length;
-  document.querySelectorAll('[data-compare-count]').forEach(el => {
-    el.textContent = count;
-    el.style.display = count > 0 ? 'inline-block' : 'none';
-  });
-}
+      function updateCompareCount() {
+        const count = getCompareList().length;
+        document.querySelectorAll('[data-compare-count]').forEach((el) => {
+          el.textContent = count;
+          el.style.display = count > 0 ? 'inline-block' : 'none';
+        });
+      }
 
-function updateCompareIcons() {
-  const list = getCompareList();
-  document.querySelectorAll('.compare-button').forEach(btn => {
-    const handle = btn.dataset.handle;
-    btn.classList.toggle('active', list.includes(handle));
-  });
-}
+      function updateCompareIcons() {
+        const list = getCompareList();
+        document.querySelectorAll('.compare-button').forEach((btn) => {
+          const handle = btn.dataset.handle;
+          btn.classList.toggle('active', list.includes(handle));
+        });
+      }
 
-function showToast(msg) {
-  const toast = document.createElement('div');
-  toast.className = 'compare-toast';
-  toast.innerText = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
+      function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'compare-toast';
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
 
-function toggleCompare(handle) {
-  let list = getCompareList();
-  const index = list.indexOf(handle);
-  if (index > -1) {
-    list.splice(index, 1);
-  } else {
-    if (list.length >= MAX_COMPARE) {
-      showToast("You can compare up to 5 products.");
-      return;
-    }
-    list.push(handle);
-  }
-  setCompareList(list);
-  updateCompareCount();
-  updateCompareIcons();
-}
+      function toggleCompare(handle) {
+        let list = getCompareList();
+        const index = list.indexOf(handle);
+        if (index > -1) {
+          list.splice(index, 1);
+        } else {
+          if (list.length >= MAX_COMPARE) {
+            showToast('You can compare up to 5 products.');
+            return;
+          }
+          list.push(handle);
+        }
+        setCompareList(list);
+        updateCompareCount();
+        updateCompareIcons();
+      }
 
-function toggleCompareModal() {
-  const modal = document.getElementById('compareModal');
-  modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-  if (modal.style.display === 'flex') {
-    renderCompareProducts();
-  }
-}
+      function toggleCompareModal() {
+        const modal = document.getElementById('compareModal');
+        modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        if (modal.style.display === 'flex') {
+          renderCompareProducts();
+        }
+      }
 
-function removeFromCompare(handle) {
-  let list = getCompareList().filter(h => h !== handle);
-  setCompareList(list);
-  updateCompareCount();
-  renderCompareProducts();
-  updateCompareIcons();
-}
+      function removeFromCompare(handle) {
+        let list = getCompareList().filter((h) => h !== handle);
+        setCompareList(list);
+        updateCompareCount();
+        renderCompareProducts();
+        updateCompareIcons();
+      }
 
-function renderCompareProducts() {
-  const handles = getCompareList();
-  const container = document.getElementById('compareProductsContainer');
+      function renderCompareProducts() {
+        const handles = getCompareList();
+        const container = document.getElementById('compareProductsContainer');
 
-  if (handles.length === 0) {
-    container.innerHTML = '<p>No products to compare.</p>';
-    return;
-  }
+        if (handles.length === 0) {
+          container.innerHTML = '<p>No products to compare.</p>';
+          return;
+        }
 
-  container.innerHTML = '<p>Loading products...</p>';
+        container.innerHTML = '<p>Loading products...</p>';
 
-  Promise.all(handles.map(handle =>
-    fetch(`/products/${handle}?view=compare-item`).then(r => r.text())
-  )).then(columns => {
-    // Each item in `columns` is <td>...</td> repeated 8 times (for each row)
-    const rows = ["image", "title", "vendor", "type", "options", "availability", "price", "remove"];
+        Promise.all(handles.map((handle) => fetch(`/products/${handle}?view=compare-item`).then((r) => r.text())))
+          .then((columns) => {
+            // Each item in `columns` is <td>...</td> repeated 8 times (for each row)
+            const rows = ['image', 'title', 'vendor', 'type', 'options', 'availability', 'price', 'remove'];
 
-    let table = `<div style="overflow-x:auto;"><table class="compare-table"><tbody>`;
-    rows.forEach((row, i) => {
-      table += `<tr class="compare-row compare-row--${row}"><th>${row.charAt(0).toUpperCase() + row.slice(1)}</th>`;
-      columns.forEach(colHTML => {
-        const temp = document.createElement('table');
-        temp.innerHTML = `<tr>${colHTML}</tr>`;
-        const cell = temp.querySelectorAll('td')[i];
-        table += cell ? cell.outerHTML : "<td></td>";
-      });
-      table += `</tr>`;
-    });
-    table += `</tbody></table></div>`;
+            let table = `<div style="overflow-x:auto;"><table class="compare-table"><tbody>`;
+            rows.forEach((row, i) => {
+              table += `<tr class="compare-row compare-row--${row}"><th>${
+                row.charAt(0).toUpperCase() + row.slice(1)
+              }</th>`;
+              columns.forEach((colHTML) => {
+                const temp = document.createElement('table');
+                temp.innerHTML = `<tr>${colHTML}</tr>`;
+                const cell = temp.querySelectorAll('td')[i];
+                table += cell ? cell.outerHTML : '<td></td>';
+              });
+              table += `</tr>`;
+            });
+            table += `</tbody></table></div>`;
 
-    container.innerHTML = table;
-  }).catch(err => {
-    container.innerHTML = '<p>Failed to load products.</p>';
-    console.error(err);
-  });
-}
+            container.innerHTML = table;
+          })
+          .catch((err) => {
+            container.innerHTML = '<p>Failed to load products.</p>';
+            console.error(err);
+          });
+      }
 
       function clearCompare() {
         setCompareList([]);
         updateCompareCount();
         updateCompareIcons();
         renderCompareProducts();
-    }
+      }
 
+      document.addEventListener('DOMContentLoaded', function () {
+        updateCompareCount();
+        updateCompareIcons();
 
-document.addEventListener('DOMContentLoaded', function () {
-  updateCompareCount();
-  updateCompareIcons();
-
-  document.body.addEventListener('click', function (e) {
-    const compareBtn = e.target.closest('.compare-button');
-    if (compareBtn) {
-      const handle = compareBtn.dataset.handle;
-      toggleCompare(handle);
-    }
-  });
-
-  
-});
+        document.body.addEventListener('click', function (e) {
+          const compareBtn = e.target.closest('.compare-button');
+          if (compareBtn) {
+            const handle = compareBtn.dataset.handle;
+            toggleCompare(handle);
+          }
+        });
+      });
     </script>
 
     <!-- Fallback (if Liquid doesn’t work due to AJAX reloads) -->
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('DOMContentLoaded', function () {
         var lang = document.documentElement.lang;
         if (lang.startsWith('ar')) {
           document.body.classList.add('lang-ar', 'rtl');
@@ -672,6 +709,79 @@ document.addEventListener('DOMContentLoaded', function () {
           document.body.classList.add('ltr');
           document.body.classList.remove('lang-ar', 'rtl');
         }
+      });
+    </script>
+
+    <!-- Pre-order Modal -->
+    <form id="preOrderForm" method="POST" action="/contact">
+      <input type="hidden" name="form_type" value="contact">
+      <input type="hidden" name="utf8" value="✓">
+      <input type="hidden" name="contact[tags]" value="pre-order">
+
+      <input type="text" name="contact[name]" placeholder="Your Name" required>
+      <input type="email" name="contact[email]" placeholder="Your Email" required>
+      <textarea name="contact[body]" placeholder="Any Notes" id="preorder-note"></textarea>
+
+      <input type="hidden" name="contact[body]" id="preorder-product-title">
+
+      <button type="submit">Submit Pre-order</button>
+      <div id="preOrderSuccess" style="display:none; color:green; margin-top:10px;">
+        ✅ Thank you! Your pre-order has been submitted.
+      </div>
+    </form>
+
+    <!-- pre-order popup modal -->
+    <script>
+      function openPreOrderModal(productTitle) {
+        const modal = document.getElementById('preOrderModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('visible');
+        document.getElementById('preorder-product-title').value = `Product: ${productTitle}`;
+      }
+
+      function closePreOrderModal() {
+        const modal = document.getElementById('preOrderModal');
+        modal.classList.remove('visible');
+        modal.classList.add('hidden');
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('preOrderForm');
+        const successMsg = document.getElementById('preOrderSuccess');
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault(); //  prevent default form behavior
+          e.stopPropagation(); //  stop Shopify cart drawer
+
+          const formData = new FormData(form);
+
+          // Optionally combine product + notes
+          const productInfo = formData.get('contact[body]') || '';
+          const productTitle = document.getElementById('preorder-product-title').value;
+
+          formData.set('contact[body]', `${productTitle}\n\n${productInfo}`);
+
+          fetch('/contact', {
+            method: 'POST',
+            body: formData,
+          })
+            .then((response) => {
+              if (response.ok) {
+                successMsg.style.display = 'block';
+                form.reset();
+
+                setTimeout(() => {
+                  successMsg.style.display = 'none';
+                  closePreOrderModal();
+                }, 2500);
+              } else {
+                alert('Error submitting pre-order. Please try again.');
+              }
+            })
+            .catch(() => {
+              alert('Error submitting pre-order. Please try again.');
+            });
+        });
       });
     </script>
   </body>

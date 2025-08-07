@@ -143,10 +143,16 @@
         "padding-block-start": 32,
         "padding-block-end": 84
       }
+    },
+    "feature_block_section_GCnFFi": {
+      "type": "feature-block-section",
+      "name": "Feature Block",
+      "settings": {}
     }
   },
   "order": [
     "main",
-    "form"
+    "form",
+    "feature_block_section_GCnFFi"
   ]
 }

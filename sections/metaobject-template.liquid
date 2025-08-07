@@ -1,0 +1,36 @@
+{% assign metaobject = shop.metaobjects.custom_template['home-hero'] %}
+
+{% if metaobject %}
+  <section class="metaobject-section">
+    <div class="container">
+      <h2>{{ metaobject.heading.value }}</h2>
+      <p>{{ metaobject.description.value }}</p>
+      {% if metaobject.image.value %}
+        <img src="{{ metaobject.image.value | image_url: width: 800 }}" alt="{{ metaobject.heading.value }}">
+      {% endif %}
+    </div>
+  </section>
+{% else %}
+  <p>No metaobject data found.</p>
+{% endif %}
+
+
+{% schema %}
+{
+  "name": "Metaobject Template",
+  "settings": [
+    {
+      "type": "text",
+      "id": "metaobject_handle",
+      "label": "Metaobject Handle",
+      "default": "home-hero"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Metaobject Template",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

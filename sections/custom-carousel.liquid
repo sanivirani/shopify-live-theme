@@ -3,8 +3,8 @@
     <h2>{{ section.settings.heading | escape }}</h2>
   </div>
 
-  <div class="custom-carousel-wrapper swiper">
-    <div class="swiper-wrapper">
+  <div class="custom-carousel-wrapper custom-swiper">
+    <div class="custom-swiper-wrapper swiper-wrapper">
       {% for product in collections[section.settings.collection].products limit: section.settings.limit %}
         <div class="swiper-slide custom-carousel-item">
           <a href="{{ product.url }}" class="custom-carousel-link">
@@ -47,8 +47,8 @@
     </div>
 
     <!-- Navigation Buttons -->
-    <div class="swiper-button-prev"></div>
-    <div class="swiper-button-next"></div>
+    <div class="custom-swiper-button-prev"></div>
+    <div class="custom-swiper-button-next"></div>
   </div>
 
   <!-- Swiper CSS -->
@@ -67,7 +67,7 @@
             font-family: "Gowang Batang", serif;
             font-size: 34px;
             margin-bottom: 1.5rem;
-            color: #23262f  
+            color: #23262f
           }
 
             .swiper-slide {
@@ -100,8 +100,8 @@
             color : #3e3e59;
             font-size: 14px;
             margin-top: 1rem;
-            margin-bottom: 5px; 
-            text-align : start; 
+            margin-bottom: 5px;
+            text-align : start;
         }
 
             .custom-carousel-price {
@@ -116,7 +116,7 @@
               color: #3e3e59;
               font-size: 13px;
               margin-left: 6px;
-              
+
             }
 
             .custom-carousel-section
@@ -153,19 +153,24 @@
               left
             } */
 
-    
+            .custom-carousel-wrapper .custom-swiper-button-prev,
+          .custom-carousel-wrapper .custom-swiper-button-next {
+            color: #721c37;
+          }
   </style>
 
   <!-- Swiper JS -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      new Swiper(".custom-carousel-wrapper.swiper", {
+      document.addEventListener("DOMContentLoaded", function () {
+      new Swiper(".custom-carousel-wrapper.custom-swiper", {
         slidesPerView: 1.2,
         spaceBetween: 16,
+        wrapperClass: "custom-swiper-wrapper",
+        slideClass: "swiper-slide",
         navigation: {
-          nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev",
+          nextEl: ".custom-swiper-button-next",
+          prevEl: ".custom-swiper-button-prev",
         },
         breakpoints: {
           640: { slidesPerView: 2.2 },

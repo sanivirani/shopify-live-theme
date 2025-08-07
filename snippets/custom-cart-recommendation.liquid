@@ -1,253 +1,394 @@
 {% assign cart_handles = cart.items | map: 'product' | map: 'handle' %}
-{% assign collection = collections[settings.cart-recommedation] %}
+{% assign collection = collections[settings['cart-recommedation']] %}
 
 {% if collection and collection.products.size > 0 %}
-  <div 
-    class="cart-recommendation" 
+  <div
+    class="cart-recommendation"
     data-collection="{{ collection.handle }}"
   >
     <h3 class="cart-recommendation__title">You might also like</h3>
 
-    <div class="swiper cart-recommendation__slider">
-      <div class="swiper-wrapper" id="cart-recommendation-wrapper">
-       {% for product in collection.products %}
-  {% unless cart_handles contains product.handle %}
-    <div class="swiper-slide cart-recommendation__slide">
-      <div class="cart-recommendation__card">
-        <a href="{{ product.url }}" class="cart-recommendation__link">
-          {% if product.featured_image %}
-            <img 
-              src="{{ product.featured_image | image_url: width: 200 }}" 
-              alt="{{ product.title }}" 
-              class="cart-recommendation__image"
-            >
-          {% else %}
-            <div class="cart-recommendation__image-placeholder"></div>
-          {% endif %}
-        </a>
-        <p class="cart-recommendation__product-title">{{ product.title }}</p>
-        <p class="cart-recommendation__product-price">{{ product.price | money }}</p>
+    <div class="cart-recommendation__slider swiper">
+      <div class="cart-recommendation__wrapper  swiper-wrapper" id="cart-recommendation-wrapper">
+        {% for product in collection.products %}
+          {% unless cart_handles contains product.handle %}
+            <div class="cart-recommendation__slide swiper-slide">
+              <div class="cart-recommendation__card">
+                <a href="{{ product.url }}" class="cart-recommendation__link">
+                  {% if product.featured_image %}
+                    <img
+                      src="{{ product.featured_image | image_url: width: 200 }}"
+                      alt="{{ product.title }}"
+                      class="cart-recommendation__image js-variant-image"
+                    >
+                  {% else %}
+                    <div class="cart-recommendation__image cart-recommendation__image--placeholder js-variant-image">
+                      No Image
+                    </div>
+                  {% endif %}
+                </a>
+                <p class="cart-recommendation__product-title">{{ product.title }}</p>
+                <p class="cart-recommendation__product-price">{{ product.price | money }}</p>
 
-       {% assign first_variant = product.variants.first %}
-{% if first_variant.available %}
-  <button 
-    class="add-to-cart-btn" 
-    data-variant-id="{{ first_variant.id }}">
-    Add to Cart
-  </button>
-{% else %}
-  <button disabled class="add-to-cart-btn out-of-stock">Sold Out</button>
-{% endif %}
+                {% if product.variants.size > 1 %}
+                  <select class="variant-selector" data-product-id="{{ product.id }}">
+                    {% for variant in product.variants %}
+                      <option
+                        value="{{ variant.id }}"
+                        data-image="{% if variant.featured_image %}{{ variant.featured_image | image_url: width: 200 }}{% else %}{{ 'no-image.png' | asset_url }}{% endif %}"
+                        {% unless variant.available %}
+                          disabled
+                        {% endunless %}
+                      >
+                        {{ variant.title -}}
+                        {%- unless variant.available %} - Sold Out{% endunless %}
+                      </option>
+                    {% endfor %}
+                  </select>
+                {% endif %}
 
-      </div>
-    </div>
-  {% endunless %}
-{% endfor %}
+                {% assign first_available = product.variants | where: 'available', true | first %}
+                {% if first_available %}
+                  {% render 'quantity-selector',
+                    product: product,
+                    in_cart_quantity: 0,
+                    min: 1,
+                    class: 'cart-primary-typography'
+                  %}
 
+                  <button
+                    class="add-to-cart-btn"
+                    data-variant-id="{{ first_available.id }}"
+                  >
+                    Add to Cart
+                  </button>
+                {% else %}
+                  <button disabled class="add-to-cart-btn out-of-stock">Sold Out</button>
+                {% endif %}
+              </div>
+            </div>
+          {% endunless %}
+        {% endfor %}
       </div>
     </div>
   </div>
 {% endif %}
 
-<style>
-.cart-recommendation {
-  padding: 16px;
-  margin-top: 20px;
- font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
+{% style %}
+    .cart-recommendation {
+    padding: 16px;
+    margin-top: 20px;
+    font-family: Inter, sans-serif;
+  }
 
-.cart-recommendation__title {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 12px 0;
-    display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  .cart-recommendation__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 13px 0;
+  }
 
-.cart-recommendation__slider {
-  padding-bottom: 4px;
-   cursor: grab;
-}
+  .cart-recommendation__slider {
+    padding-bottom: 4px;
+    cursor: grab;
+  }
 
-.swiper-wrapper {
-  display: flex;
-}
+  .cart-recommendation__wrapper {
+    display: flex;
+    scroll-snap-type: x mandatory;
+  }
 
-.swiper-slide {
-  width: 140px !important;
-}
+  .cart-recommendation__wrapper::-webkit-scrollbar {
+    display: none;
+  }
 
-.cart-recommendation__slide {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
-  width: 140px;
-}
-
-.cart-recommendation__card {
-  background-color: #fff;
-  border: 2px solid #eee;
-  border-radius: 8px;
-  padding: 8px;
-  text-align: center;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 220px;
-  box-sizing: border-box;
-}
-
-.cart-recommendation__image {
-  width: 100%;
-  height: 80px;
-  object-fit: contain;
-  border-radius: 6px;
-  margin-bottom: 6px;
-}
-
-.cart-recommendation__product-title {
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.3em;
-  height: 2.6em;
-  overflow: hidden;
-  color: #111;
-  margin-top : 5px;
-}
-
-.cart-recommendation__product-price {
-  font-size: 13px;
-  color: #555;
-  margin-top: inherit;  
-  margin-bottom: 6px;
-}
-
-.add-to-cart-btn,
-.select-options-link {
-  margin-top: auto;
-  font-size: 12px; 
-  padding: 6px 10px;
-  border-radius: 4px;
-  border: 1px solid #721c37;
-  background-color: #fff;
-  color: #111;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.add-to-cart-btn:hover {
-  background-color: #721c37;
-  color: #fff;
-  border: none;
-}
-
-.select-options-link {
-  border: none;
-  color: #0070f3;
-  text-decoration: underline;
-  background: transparent;
-  padding: 0;
-}
-
-
-@media (max-width: 480px) {
-  .cart-recommendation__slide,
-  .swiper-slide {
-    width: 115px !important;
+  .cart-recommendation__slide {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    width: 140px;
   }
 
   .cart-recommendation__card {
-    height: 190px;
-    padding: 6px;
+    background-color: #fff;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 250px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
 
   .cart-recommendation__image {
-    height: 60px;
+    width: 100%;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 6px;
+    margin-bottom: 6px;
+  }
+
+  .cart-recommendation__image--placeholder {
+    background-color: #f2f2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 12px;
+    font-style: italic;
+    height: 80px;
   }
 
   .cart-recommendation__product-title {
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2em;
+    height: 2.4em;
+    margin: 4px 0;
+    color: #111;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   .cart-recommendation__product-price {
+    font-size: 13px;
+    color: #555;
+    margin: 4px 0 6px;
+  }
+
+  .variant-selector {
     font-size: 12px;
+    padding: 3px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    border: 1px solid #ccc;
+    max-width: 100%;
   }
 
   .add-to-cart-btn {
-    font-size: 11px;
-    padding: 5px 8px;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #721c37;
+    background-color: #fff;
+    color: #111;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: auto;
   }
-}
 
-</style>
+  .add-to-cart-btn:hover {
+    background-color: #721c37;
+    color: #fff;
+  }
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  new Swiper('.cart-recommendation__slider', {
-    slidesPerView: 'auto',
-    spaceBetween: 12,
-    freeMode: true,
-    grabCursor: true
-  });
-});
-</script>
+  .add-to-cart-btn.out-of-stock {
+    background-color: #f3f3f3;
+    color: #999;
+    border-color: #ccc;
+    cursor: not-allowed;
+  }
 
-<script>
-document.addEventListener('click', function (e) {
-  const btn = e.target.closest('.add-to-cart-btn');
-  if (!btn) return;
+   .cart-recommendation .quantity-selector {
+     justify-content: space-evenly;
+   }
 
-  e.preventDefault();
+   .cart-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #721c37;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 6px;
+    z-index: 99999;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
 
-  const variantId = btn.dataset.variantId;
-  btn.disabled = true;
-  btn.textContent = 'Adding...';
+  .cart-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
 
-  fetch('/cart/add.js', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: variantId, quantity: 1 })
-  })
-  .then(response => {
-    if (!response.ok) throw new Error('Add to cart failed');
-    return response.json();
-  })
-  .then(() => {
-    btn.textContent = 'Added!';
+             
 
-    // Reload the cart drawer section
-    return fetch('/?sections=cart-drawer');
-  })
-  .then(res => res.json())
-  .then(data => {
-    const drawerHtml = data['cart-drawer'];
-    const drawer = document.querySelector('#cart-drawer');
-    if (drawer && drawerHtml) {
-      drawer.innerHTML = new DOMParser()
-        .parseFromString(drawerHtml, 'text/html')
-        .querySelector('#cart-drawer').innerHTML;
+  @media (max-width: 480px) {
+    .cart-recommendation__slide {
+      width: 120px !important;
     }
 
-    // Open the cart drawer if closed
-    if (typeof window.openCartDrawer === 'function') {
-      window.openCartDrawer();
-    } else {
-      drawer?.classList.add('is-open');
+    .cart-recommendation__card {
+      height: 200px;
+      padding: 6px;
     }
-  })
-  .catch(() => {
-    btn.textContent = 'Error';
-  })
-  .finally(() => {
+
+    .cart-recommendation__image {
+      height: 60px;
+    }
+
+    .cart-recommendation__product-title {
+      font-size: 12px;
+    }
+
+    .cart-recommendation__product-price {
+      font-size: 12px;
+    }
+
+    .add-to-cart-btn {
+      font-size: 11px;
+      padding: 5px 8px;
+    }
+
+    .variant-selector {
+      font-size: 11px;
+    }
+  }
+{% endstyle %}
+
+<script>
+  function initCartRecommendationSwiper() {
+    document.querySelectorAll('.cart-recommendation .swiper').forEach(slider => {
+      new Swiper(slider, {
+        slidesPerView: 'auto',
+        spaceBetween: 10,
+        freeMode: true,
+        grabCursor: true
+      });
+    });
+  }
+
+  function showToast_drawer(message) {
+    let toast = document.createElement('div');
+    toast.className = 'cart-toast';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => {
+      toast.classList.add('visible');
+    });
+
     setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = 'Add to Cart';
-    }, 2000);
+      toast.classList.remove('visible');
+      toast.addEventListener('transitionend', () => toast.remove());
+    }, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initCartRecommendationSwiper();
+
+    // Variant image switcher
+    document.querySelectorAll('.cart-recommendation .variant-selector').forEach(selector => {
+      selector.addEventListener('change', function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const imageUrl = selectedOption.dataset.image;
+        const fallback = '{{ "no-image.png" | asset_url }}';
+        if (!imageUrl) return;
+
+        const card = this.closest('.cart-recommendation__card');
+        const imageEl = card.querySelector('.js-variant-image');
+        if (imageEl) {
+          imageEl.src = imageUrl || fallback;
+        }
+      });
+    });
   });
-});
+
+  // Add to cart handler
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.add-to-cart-btn');
+    if (!btn || !btn.closest('.cart-recommendation')) return;
+
+    e.preventDefault();
+
+    const card = btn.closest('.cart-recommendation__card');
+    const selector = card.querySelector('.variant-selector');
+
+    let variantId = btn.dataset.variantId;
+    if (selector) {
+      variantId = selector.value;
+      if (!variantId) {
+        alert('Please select a variant');
+        return;
+      }
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+ 
+    const quantityInput = card.querySelector('.quantity-selector input[name="quantity"]');
+    const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: variantId,
+          quantity,
+          properties: {
+          _source: 'recommendation-' + Date.now()  // this forces new line item
+        }
+      })
+
+    })
+      .then(response => {
+        if (!response.ok) throw new Error('Add to cart failed');
+        return response.json();
+      })
+      .then(() => {
+        const cartSection = document.querySelector('cart-items-component');
+        const sectionId = cartSection?.dataset.sectionId;
+        if (!sectionId) throw new Error('Cart section ID not found');
+
+        return fetch(`/?sections=${sectionId},header`);
+      })
+      .then(res => res.json())
+      .then(data => {
+        const parser = new DOMParser();
+
+        // Update cart section
+        const cartSection = document.querySelector('cart-items-component');
+        const html = data[cartSection.dataset.sectionId];
+        if (html) {
+          const newInner = parser.parseFromString(html, 'text/html').querySelector('cart-items-component');
+          if (newInner) {
+            cartSection.innerHTML = newInner.innerHTML;
+          }
+        }
+
+        // Update header bubble
+        const headerHtml = data['header'];
+        if (headerHtml) {
+          const newBubble = parser.parseFromString(headerHtml, 'text/html').querySelector('.cart-bubble');
+          const currentBubble = document.querySelector('.cart-bubble');
+          if (newBubble && currentBubble) {
+            currentBubble.replaceWith(newBubble);
+          }
+        }
+
+        // Re-init swiper
+        initCartRecommendationSwiper();
+
+        //  Show success toast
+        showToast_drawer('Product added to cart!!');
+      })
+      .catch(err => {
+        console.error(err);
+        btn.textContent = 'Error';
+      })
+      .finally(() => {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Add to Cart';
+        }, 2000);
+      });
+  });
 </script>
