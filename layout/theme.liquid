@@ -49,6 +49,8 @@
     <!-- Fancybox CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css">
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js" defer></script>
+
+    
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }} {% if request.locale.iso_code == 'ar' %}lang-ar{% endif %}">
@@ -132,26 +134,6 @@
       Product added to cart!
     </div>
 
-    <!--
-      <script>
-              function showToast(message = 'Added to cart!') {
-          const toast = document.getElementById('toast-message');
-          if (!toast) return;
-
-          toast.textContent = message;
-          toast.style.opacity = '1';
-          toast.style.pointerEvents = 'auto';
-          toast.style.transform = 'translateY(0)';
-
-          setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.pointerEvents = 'none';
-            toast.style.transform = 'translateY(20px)';
-          }, 2500);
-        }
-      </script>
-    -->
-
     <!-- fullPage.js JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/fullpage.min.js" defer></script>
     {{ 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js' | script_tag }}
@@ -231,86 +213,92 @@
     </div>
 
     <style>
-       .wishlist-btn {
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        top: 40px;
-        right: 10px;
-        z-index: 10;
+             .wishlist-btn {
+              background: transparent;
+              border: none;
+              cursor: pointer;
+              padding: 4px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              position: absolute;
+              top: 40px;
+              right: 10px;
+              z-index: 10;
+            }
+
+            .wishlist-icon {
+              color: #999;
+              transition: color 0.2s ease;
+            }
+
+            .wishlist-btn.active .wishlist-icon {
+              color: #721c37;
+
+            }
+
+            /* Wishlist drawer */
+            #wishlist-drawer {
+              position: fixed;
+              right: -100%;
+              top: 0;
+              width: 400px;
+              height: 100vh;
+              background: #fff;
+              box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
+              z-index: 9999;
+              transition: right 0.3s ease;
+              overflow-y: auto;
+            }
+
+            @media (max-width: 480px) {
+        #wishlist-drawer {
+          width: 100vw; /* Take full screen width */
+        }
       }
 
-      .wishlist-icon {
-        color: #999;
-        transition: color 0.2s ease;
-      }
+            #wishlist-drawer.open {
+              right: 0;
+            }
 
-      .wishlist-btn.active .wishlist-icon {
-        color: #721c37;
+            .wishlist-drawer-header {
+              padding: 16px;
+              border-bottom: 1px solid #eee;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
 
-      }
+            .wishlist-drawer-body {
+              padding: 16px;
+            }
 
-      /* Wishlist drawer */
-      #wishlist-drawer {
-        position: fixed;
-        right: -100%;
-        top: 0;
-        width: 400px;
-        height: 100vh;
-        background: #fff;
-        box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
-        z-index: 9999;
-        transition: right 0.3s ease;
-        overflow-y: auto;
-      }
+            .wishlist-grid {
+              display: grid;
+              gap: 20px;
+              grid-template-columns: 1fr 1fr;
+            }
 
-      #wishlist-drawer.open {
-        right: 0;
-      }
+            .wishlist-item {
+              border: 1px solid #eee;
+              padding: 10px;
+              position: relative;
+            }
 
-      .wishlist-drawer-header {
-        padding: 16px;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
+            .wishlist-remove-btn {
+              display: block;
+              margin-top: 20px;
+              padding: 6px 10px;
+              background-color: #eee;
+              border: none;
+              cursor: pointer;
+              font-size: 14px;
+            }
 
-      .wishlist-drawer-body {
-        padding: 16px;
-      }
-
-      .wishlist-grid {
-        display: grid;
-        gap: 20px;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .wishlist-item {
-        border: 1px solid #eee;
-        padding: 10px;
-        position: relative;
-      }
-
-      .wishlist-remove-btn {
-        display: block;
-        margin-top: 20px;
-        padding: 6px 10px;
-        background-color: #eee;
-        border: none;
-        cursor: pointer;
-        font-size: 14px;
-      }
-
-      .wishlist-remove-btn:hover {
-        background-color: #721c37;
-        color : white;
-      }
+            .wishlist-remove-btn:hover {
+              background-color: #721c37;
+              color : white;
+            }
     </style>
 
     <script>
@@ -712,77 +700,171 @@
       });
     </script>
 
-    <!-- Pre-order Modal -->
-    <form id="preOrderForm" method="POST" action="/contact">
-      <input type="hidden" name="form_type" value="contact">
-      <input type="hidden" name="utf8" value="✓">
-      <input type="hidden" name="contact[tags]" value="pre-order">
+    {% comment %} <script src="{{ 'cart-drawer-refresh.js' | asset_url  }}" defer></script> {% endcomment %}
 
-      <input type="text" name="contact[name]" placeholder="Your Name" required>
-      <input type="email" name="contact[email]" placeholder="Your Email" required>
-      <textarea name="contact[body]" placeholder="Any Notes" id="preorder-note"></textarea>
+    {% comment %} <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const mainProductVariantId = 50498902261976;
+        const giftVariantId = 50498751037656;
 
-      <input type="hidden" name="contact[body]" id="preorder-product-title">
+        async function getCart() {
+          const res = await fetch('/cart.js');
+          return await res.json();
+        }
 
-      <button type="submit">Submit Pre-order</button>
-      <div id="preOrderSuccess" style="display:none; color:green; margin-top:10px;">
-        ✅ Thank you! Your pre-order has been submitted.
-      </div>
-    </form>
-
-    <!-- pre-order popup modal -->
-    <script>
-      function openPreOrderModal(productTitle) {
-        const modal = document.getElementById('preOrderModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('visible');
-        document.getElementById('preorder-product-title').value = `Product: ${productTitle}`;
-      }
-
-      function closePreOrderModal() {
-        const modal = document.getElementById('preOrderModal');
-        modal.classList.remove('visible');
-        modal.classList.add('hidden');
-      }
-
-      document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('preOrderForm');
-        const successMsg = document.getElementById('preOrderSuccess');
-
-        form.addEventListener('submit', function (e) {
-          e.preventDefault(); //  prevent default form behavior
-          e.stopPropagation(); //  stop Shopify cart drawer
-
-          const formData = new FormData(form);
-
-          // Optionally combine product + notes
-          const productInfo = formData.get('contact[body]') || '';
-          const productTitle = document.getElementById('preorder-product-title').value;
-
-          formData.set('contact[body]', `${productTitle}\n\n${productInfo}`);
-
-          fetch('/contact', {
+        async function addGiftToCart() {
+          return await fetch('/cart/add.js', {
             method: 'POST',
-            body: formData,
-          })
-            .then((response) => {
-              if (response.ok) {
-                successMsg.style.display = 'block';
-                form.reset();
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: [
+                {
+                  id: giftVariantId,
+                  quantity: 1,
+                  properties: { _gift: 'true' },
+                },
+              ],
+            }),
+          });
+        }
 
-                setTimeout(() => {
-                  successMsg.style.display = 'none';
-                  closePreOrderModal();
-                }, 2500);
+        async function removeGiftFromCart(itemKey) {
+          return await fetch('/cart/change.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: itemKey,
+              quantity: 0,
+            }),
+          });
+        }
+
+        async function updateCartUI() {
+          // Update cart drawer section
+          const cartSection = await fetch('/?section_id=cart-items-component');
+          const html = await cartSection.text();
+          const newContent = new DOMParser().parseFromString(html, 'text/html');
+          const newCart = newContent.querySelector('.cart-items-component');
+          document.querySelector('.cart-items-component').replaceWith(newCart);
+
+          // Update cart icon count
+          const cart = await getCart();
+          const count = cart.item_count;
+          const countEl = document.querySelector('.cart-bubble__text-count');
+          if (countEl) countEl.textContent = count;
+        }
+
+        async function handleGiftLogic() {
+          const cart = await getCart();
+          const hasMain = cart.items.some((item) => item.variant_id === mainProductVariantId);
+          const giftItem = cart.items.find((item) => item.variant_id === giftVariantId);
+
+          if (hasMain && !giftItem) {
+            await addGiftToCart();
+            await updateCartUI();
+          }
+
+          if (!hasMain && giftItem) {
+            await removeGiftFromCart(giftItem.key);
+            await updateCartUI();
+          }
+        }
+
+        // Trigger on page load
+        handleGiftLogic();
+
+        // Trigger when main product is added (from your quick add or product page)
+        document.addEventListener('product:added', () => {
+          handleGiftLogic();
+        });
+      });
+    </script> {% endcomment %}
+
+    {% comment %} load more progress bar {% endcomment %}
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Only run on the correct collection page
+        if (!window.location.pathname.includes('/collections/all')) return;
+
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        const productGrid = document.querySelector('.product-grid__item')?.closest('ul');
+        const totalCount = parseInt(document.querySelector('.total-count')?.textContent || '0');
+
+        if (!loadMoreBtn || !progressText || !progressBar || !productGrid || !totalCount) return;
+
+        function updateProgressUI() {
+          const seenCount = productGrid.querySelectorAll('.product-grid__item').length;
+          const percent = Math.min((seenCount / totalCount) * 100, 100);
+
+          document.querySelector('.seen-count').textContent = seenCount;
+          progressBar.style.width = `${percent}%`;
+        }
+
+        // Initial progress bar update
+        updateProgressUI();
+
+        loadMoreBtn.addEventListener('click', function () {
+          const nextUrl = loadMoreBtn.dataset.nextUrl;
+          if (!nextUrl) return;
+
+          loadMoreBtn.disabled = true;
+          loadMoreBtn.textContent = 'Loading...';
+
+          fetch(nextUrl)
+            .then((res) => res.text())
+            .then((html) => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, 'text/html');
+
+              const newItems = doc.querySelectorAll('.product-grid__item');
+              newItems.forEach((item) => productGrid.appendChild(item));
+
+              // Update progress bar
+              updateProgressUI();
+
+              // Handle next button
+              const newBtn = doc.querySelector('#load-more-btn');
+              if (newBtn) {
+                loadMoreBtn.dataset.nextUrl = newBtn.dataset.nextUrl;
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Load more';
               } else {
-                alert('Error submitting pre-order. Please try again.');
+                loadMoreBtn.remove();
               }
+
+              // Update URL (optional)
+              const nextPage = new URL(nextUrl, window.location.origin).searchParams.get('page');
+              history.replaceState(null, '', `?page=${nextPage}`);
             })
-            .catch(() => {
-              alert('Error submitting pre-order. Please try again.');
+            .catch((err) => {
+              console.error('Load more failed:', err);
+              loadMoreBtn.textContent = 'Try again';
+              loadMoreBtn.disabled = false;
             });
         });
       });
     </script>
+
+   <script type="module">
+  import { handleGiftLogic } from '{{ 'gift-handler.js' | asset_url }}';
+
+  // Run when a product is added or removed
+  document.addEventListener('CartAddEvent', () => {
+    handleGiftLogic();
+  });
+
+  // Run once when drawer is opened (to check if gift is needed)
+  document.addEventListener('DOMContentLoaded', () => {
+    const drawer = document.querySelector('cart-drawer');
+    if (drawer) {
+      const observer = new MutationObserver(() => handleGiftLogic());
+      observer.observe(drawer, { childList: true, subtree: true });
+    }
+  });
+</script>
+
+
   </body>
 </html>

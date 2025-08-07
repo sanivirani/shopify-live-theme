@@ -123,6 +123,30 @@
       >
         {{ children }}
       </ul>
+
+      {% comment %} custom load more button {% endcomment %}
+      {% assign seen = paginate.current_offset | plus: paginate.page_size | at_most: collection.products_count %}
+      {% assign total = collection.products_count %}
+      {% assign percent = seen | times: 100.0 | divided_by: total %}
+
+      <div id="load-more-wrapper">
+        <div id="progress-text">
+          You've seen
+          <span class="load-more-count seen-count">{{ seen }}</span>
+          of <span class="load-more-count total-count">{{ total }}</span> products
+        </div>
+
+        <div id="progress-bar-container" class="load-more_progress-bar-container">
+          <div id="progress-bar" class="load-more-progress-bar" style="width: {{ percent }}%;"></div>
+        </div>
+
+        
+
+        {% if paginate.next %}
+          <button id="load-more-btn" class="load-more-btn" data-next-url="{{ paginate.next.url }}">Load more</button>
+        {% endif %}
+      </div>
+
       <span ref="viewMoreNext"></span>
     {% endif %}
   </div>

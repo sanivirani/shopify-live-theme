@@ -9,21 +9,11 @@
   @param {string} [id] - The ID attribute for the button.
 {%- enddoc -%}
 
- {% comment %}
-      preorder condition
- {% endcomment %}
-
 {%- liquid
   assign default_add_to_cart_text = 'actions.add_to_cart' | t
   assign product_variant_media = product.selected_or_first_available_variant.featured_media.preview_image | image_url: width: 100
-
   if product.selected_or_first_available_variant.featured_media.preview_image == blank
     assign product_variant_media = product.featured_media.preview_image | image_url: width: 100
-  endif
-
-  assign is_preorder = false
-  if product.tags contains 'pre-order' or product.available == false
-    assign is_preorder = true
   endif
 -%}
 
@@ -33,37 +23,31 @@
 >
   <button
     id="{{ id }}"
-    type="{% if is_preorder %}button{% else %}submit{% endif %}"
+    type="submit"
     name="add"
     ref="addToCartButton"
-    {% if is_preorder %}
-      onclick="openPreOrderModal('{{ product.title | escape }}')"
-    {% else %}
-      on:click="/handleClick"
-    {% endif %}
+    on:click="/handleClick"
     class="button {{ class }}"
     {% unless can_add_to_cart %}
       disabled
     {% endunless %}
   >
-   
-    <span class="add-to-cart-text">
-      <span class="svg-wrapper add-to-cart-icon">
-        {% if is_preorder %}
-          {{ 'icon-preorder.svg' | inline_asset_content }}
-        {% else %}
-          {{ 'icon-add-to-cart.svg' | inline_asset_content }}
-        {% endif %}
-      </span>
+    <span
+      class="add-to-cart-text"
+    >
+      {% if can_add_to_cart %}
+        <span class="svg-wrapper add-to-cart-icon">
+          {{- 'icon-add-to-cart.svg' | inline_asset_content -}}
+        </span>
+      {% endif %}
       <span class="add-to-cart-text__content{% if icon_only_on_mobile %} is-visually-hidden-mobile{% endif %}">
-        {% if is_preorder %}
-          Pre-order Now
-        {% else %}
-          {{- add_to_cart_text | default: default_add_to_cart_text -}}
-        {% endif %}
+        {{- add_to_cart_text | default: default_add_to_cart_text -}}
       </span>
     </span>
-    <span aria-hidden="true" class="add-to-cart-text--added">
+    <span
+      aria-hidden="true"
+      class="add-to-cart-text--added"
+    >
       <span class="svg-wrapper add-to-cart-icon--added">
         {{- 'icon-checkmark.svg' | inline_asset_content -}}
       </span>
@@ -74,143 +58,61 @@
   </button>
 </add-to-cart-component>
 
-<!-- Pre-order Modal -->
-<div id="preOrderModal" class="preorder-modal hidden">
-  <div class="preorder-modal__content">
-    <span class="preorder-close" onclick="closePreOrderModal()">×</span>
-    <h2>Pre-order Request</h2>
-    <form id="preOrderForm">
-      <input type="hidden" name="form_type" value="contact">
-      <input type="hidden" name="utf8" value="✓">
-      <input type="hidden" name="contact[tags]" value="pre-order">
-
-      <input type="text" name="contact[name]" placeholder="Your Name" required>
-      <input type="email" name="contact[email]" placeholder="Your Email" required>
-      <textarea name="contact[body]" placeholder="Any Notes" id="preorder-note"></textarea>
-
-      <input type="hidden" name="contact[body]" id="preorder-product-title">
-
-      <button type="submit">Submit Pre-order</button>
-      <div id="preOrderSuccess" style="display:none; color:green; margin-top:10px;">
-        ✅ Thank you! Your pre-order has been submitted.
-      </div>
-    </form>
-  </div>
-</div>
-
 {% stylesheet %}
-    .add-to-cart-text {
-      display: flex;
-      gap: var(--gap-2xs);
-      align-items: center;
-      justify-content: center;
-      animation-duration: var(--animation-speed);
-      animation-timing-function: var(--animation-easing);
-      animation-fill-mode: forwards;
-      transition: opacity var(--animation-speed) var(--animation-easing);
-    }
-
-    .atc-added .add-to-cart-text {
-      animation-name: atc-slide-out;
-    }
-
-    .add-to-cart-text--added {
-      position: absolute;
-      inset: 0;
-      animation-duration: var(--animation-speed);
-      animation-timing-function: var(--animation-easing);
-      animation-fill-mode: forwards;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: width var(--animation-speed) var(--animation-easing),
-        opacity var(--animation-speed) var(--animation-easing);
-    }
-
-    .atc-added .add-to-cart-text--added {
-      animation-name: atc-slide-in;
-    }
-
-
-    @keyframes atc-slide-in {
-      from {
-        opacity: 0;
-        transform: translateY(0.5em);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes atc-slide-out {
-      from {
-        transform: translateY(0);
-        opacity: 1;
-      }
-
-      to {
-        transform: translateY(-1em);
-        opacity: 0;
-      }
-    }
-
-   .preorder-modal {
-    position: fixed;
-    z-index: 9999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    background: rgba(0,0,0,0.5);
-    justify-content: center;
-    align-items: center;
-  }
-
-  .preorder-modal.visible {
+  .add-to-cart-text {
     display: flex;
+    gap: var(--gap-2xs);
+    align-items: center;
+    justify-content: center;
+    animation-duration: var(--animation-speed);
+    animation-timing-function: var(--animation-easing);
+    animation-fill-mode: forwards;
+    transition: opacity var(--animation-speed) var(--animation-easing);
   }
 
-  .preorder-modal.hidden {
-    display: none;
+  .atc-added .add-to-cart-text {
+    animation-name: atc-slide-out;
   }
 
-  .preorder-modal__content {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    max-width: 400px;
-    width: 90%;
-    position: relative;
-  }
-
-  .preorder-close {
+  .add-to-cart-text--added {
     position: absolute;
-    top: 0.5rem;
-    right: 0.75rem;
-    font-size: 1.5rem;
-    cursor: pointer;
+    inset: 0;
+    animation-duration: var(--animation-speed);
+    animation-timing-function: var(--animation-easing);
+    animation-fill-mode: forwards;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: width var(--animation-speed) var(--animation-easing),
+      opacity var(--animation-speed) var(--animation-easing);
   }
 
-  #preOrderForm input,
-  #preOrderForm textarea {
-    display: block;
-    width: 100%;
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  .atc-added .add-to-cart-text--added {
+    animation-name: atc-slide-in;
   }
 
-  #preOrderForm button {
-    padding: 0.75rem 1.5rem;
-    background: #000;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  @keyframes atc-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5em);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes atc-slide-out {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    to {
+      transform: translateY(-1em);
+      opacity: 0;
+    }
   }
 {% endstylesheet %}

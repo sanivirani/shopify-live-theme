@@ -1,0 +1,424 @@
+{% doc %}
+  @prompt
+    make a product inventory indicator and show there how many stock available and indicate
+
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-inventory-indicator-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: {{ block.settings.padding }}px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    border: 1px solid {{ block.settings.border_color }};
+  }
+
+  .ai-inventory-icon-{{ ai_gen_id }} {
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ai-inventory-icon-{{ ai_gen_id }}--in-stock {
+    background-color: {{ block.settings.in_stock_color }};
+  }
+
+  .ai-inventory-icon-{{ ai_gen_id }}--low-stock {
+    background-color: {{ block.settings.low_stock_color }};
+  }
+
+  .ai-inventory-icon-{{ ai_gen_id }}--out-of-stock {
+    background-color: {{ block.settings.out_of_stock_color }};
+  }
+
+  .ai-inventory-text-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.text_size }}px;
+    font-weight: {{ block.settings.text_weight }};
+    margin: 0;
+  }
+
+  .ai-inventory-count-{{ ai_gen_id }} {
+    color: {{ block.settings.count_color }};
+    font-weight: 600;
+  }
+
+  .ai-inventory-bar-wrapper-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: {{ block.settings.bar_width }}px;
+    margin-top: 4px;
+  }
+
+  .ai-inventory-bar-{{ ai_gen_id }} {
+    width: 100%;
+    height: {{ block.settings.bar_height }}px;
+    background-color: {{ block.settings.bar_background_color }};
+    border-radius: {{ block.settings.bar_border_radius }}px;
+    overflow: hidden;
+  }
+
+  .ai-inventory-bar-fill-{{ ai_gen_id }} {
+    height: 100%;
+    border-radius: {{ block.settings.bar_border_radius }}px;
+    transition: width 0.3s ease;
+  }
+
+  .ai-inventory-bar-fill-{{ ai_gen_id }}--in-stock {
+    background-color: {{ block.settings.in_stock_color }};
+  }
+
+  .ai-inventory-bar-fill-{{ ai_gen_id }}--low-stock {
+    background-color: {{ block.settings.low_stock_color }};
+  }
+
+  .ai-inventory-bar-fill-{{ ai_gen_id }}--out-of-stock {
+    background-color: {{ block.settings.out_of_stock_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-inventory-indicator-{{ ai_gen_id }} {
+      flex-direction: {{ block.settings.mobile_layout }};
+      gap: {{ block.settings.mobile_gap }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-inventory-indicator-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% liquid
+    assign current_variant = product.selected_or_first_available_variant
+    assign inventory_quantity = current_variant.inventory_quantity
+    assign inventory_policy = current_variant.inventory_policy
+    assign available = current_variant.available
+    if inventory_policy == 'continue' or inventory_quantity == null
+      assign show_exact_count = false
+      assign status = 'in_stock'
+      assign status_text = block.settings.in_stock_text
+    elsif inventory_quantity <= 0
+      assign show_exact_count = true
+      assign status = 'out_of_stock'
+      assign status_text = block.settings.out_of_stock_text
+    elsif inventory_quantity <= block.settings.low_stock_threshold
+      assign show_exact_count = true
+      assign status = 'low_stock'
+      assign status_text = block.settings.low_stock_text
+    else
+      assign show_exact_count = block.settings.show_exact_count
+      assign status = 'in_stock'
+      assign status_text = block.settings.in_stock_text
+    endif
+    if block.settings.max_display_quantity > 0
+      assign max_quantity = block.settings.max_display_quantity
+    else
+      assign max_quantity = 100
+    endif
+    
+    if inventory_quantity > max_quantity
+      assign display_quantity = max_quantity
+      assign is_capped = true
+    else
+      assign display_quantity = inventory_quantity
+      assign is_capped = false
+    endif
+    
+    if inventory_quantity > 0 and max_quantity > 0
+      assign bar_percentage = display_quantity | times: 100.0 | divided_by: max_quantity
+      if bar_percentage > 100
+        assign bar_percentage = 100
+      endif
+    else
+      assign bar_percentage = 0
+    endif
+  %}
+
+  {% if block.settings.show_icon %}
+    <div class="ai-inventory-icon-{{ ai_gen_id }} ai-inventory-icon-{{ ai_gen_id }}--{{ status }}"></div>
+  {% endif %}
+
+  <div class="ai-inventory-content-{{ ai_gen_id }}">
+    <p class="ai-inventory-text-{{ ai_gen_id }}">
+      {{ status_text }}
+      {% if show_exact_count and inventory_quantity != null %}
+        {% if inventory_quantity > 0 %}
+          <span class="ai-inventory-count-{{ ai_gen_id }}">
+            {% if is_capped %}
+              {{ display_quantity }}+
+            {% else %}
+              {{ display_quantity }}
+            {% endif %}
+            {% if block.settings.show_unit_text %}
+              {{ block.settings.unit_text }}
+            {% endif %}
+          </span>
+        {% endif %}
+      {% endif %}
+    </p>
+
+    {% if block.settings.show_progress_bar and inventory_quantity != null and inventory_quantity > 0 %}
+      <div class="ai-inventory-bar-wrapper-{{ ai_gen_id }}">
+        <div class="ai-inventory-bar-{{ ai_gen_id }}">
+          <div 
+            class="ai-inventory-bar-fill-{{ ai_gen_id }} ai-inventory-bar-fill-{{ ai_gen_id }}--{{ status }}"
+            style="width: {{ bar_percentage }}%;"
+          ></div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Inventory Indicator",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Display Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show status icon",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_exact_count",
+      "label": "Show exact count when in stock",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress_bar",
+      "label": "Show progress bar",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_unit_text",
+      "label": "Show unit text",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "unit_text",
+      "label": "Unit text",
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "low_stock_threshold",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "label": "Low stock threshold",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "max_display_quantity",
+      "min": 10,
+      "max": 200,
+      "step": 10,
+      "label": "Maximum quantity to display",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Status Messages"
+    },
+    {
+      "type": "text",
+      "id": "in_stock_text",
+      "label": "In stock text",
+      "default": "In stock:"
+    },
+    {
+      "type": "text",
+      "id": "low_stock_text",
+      "label": "Low stock text",
+      "default": "Only"
+    },
+    {
+      "type": "text",
+      "id": "out_of_stock_text",
+      "label": "Out of stock text",
+      "default": "Out of stock"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e9ecef"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#495057"
+    },
+    {
+      "type": "color",
+      "id": "count_color",
+      "label": "Count color",
+      "default": "#212529"
+    },
+    {
+      "type": "color",
+      "id": "in_stock_color",
+      "label": "In stock color",
+      "default": "#28a745"
+    },
+    {
+      "type": "color",
+      "id": "low_stock_color",
+      "label": "Low stock color",
+      "default": "#ffc107"
+    },
+    {
+      "type": "color",
+      "id": "out_of_stock_color",
+      "label": "Out of stock color",
+      "default": "#dc3545"
+    },
+    {
+      "type": "header",
+      "content": "Progress Bar"
+    },
+    {
+      "type": "color",
+      "id": "bar_background_color",
+      "label": "Bar background color",
+      "default": "#e9ecef"
+    },
+    {
+      "type": "range",
+      "id": "bar_width",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Bar width",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "bar_height",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Bar height",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "bar_border_radius",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Bar border radius",
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 6,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Icon size",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "text_weight",
+      "label": "Text weight",
+      "options": [
+        {"value": "400", "label": "Normal"},
+        {"value": "500", "label": "Medium"},
+        {"value": "600", "label": "Semibold"}
+      ],
+      "default": "400"
+    },
+    {
+      "type": "header",
+      "content": "Mobile Layout"
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        {"value": "row", "label": "Horizontal"},
+        {"value": "column", "label": "Vertical"}
+      ],
+      "default": "row"
+    },
+    {
+      "type": "range",
+      "id": "mobile_gap",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile gap",
+      "default": 6
+    }
+  ],
+  "presets": [
+    {
+      "name": "Inventory Indicator"
+    }
+  ],
+  "tag": null
+}
+{% endschema %}

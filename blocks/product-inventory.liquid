@@ -1,4 +1,6 @@
 {% # import schema from '../schemas/blocks/product-inventory' %}
+{% comment %} here pre-order condition one problem is when any varient have stock so indicator show pre-order but add to cart button active {% endcomment %}
+
 
 {%- liquid
   assign variant = closest.product.selected_or_first_available_variant
@@ -9,34 +11,43 @@
   assign inventory_policy = variant.inventory_policy
   assign threshold = block.settings.inventory_threshold
 
-  if inventory_managed
-    if inventory_quantity > 0
-      if inventory_quantity <= threshold
-        assign status = 'low'
-        assign show_quantity = block.settings.show_inventory_quantity
-        if show_quantity == false
-          assign translation_key = 'content.inventory_low_stock'
+  # 🆕 Always show "Pre-order available" if product has preorder tag
+
+  if variant.inventory_management == 'shopify' and variant.inventory_quantity <= 0 and variant.inventory_policy == 'continue'
+
+    assign status = 'preorder'
+    assign translation_key = 'content.inventory_preorder'
+    assign show_quantity = false
+  else
+    if inventory_managed
+      if inventory_quantity > 0
+        if inventory_quantity <= threshold
+          assign status = 'low'
+          assign show_quantity = block.settings.show_inventory_quantity
+          if show_quantity == false
+            assign translation_key = 'content.inventory_low_stock'
+          endif
+        else
+          assign status = 'in_stock'
+          assign translation_key = 'content.inventory_in_stock'
         endif
       else
-        assign status = 'in_stock'
-        assign translation_key = 'content.inventory_in_stock'
+        if inventory_policy == 'continue'
+          assign status = 'in_stock'
+          assign translation_key = 'content.inventory_in_stock'
+        else
+          assign status = 'out_of_stock'
+          assign translation_key = 'content.inventory_out_of_stock'
+        endif
       endif
     else
-      if inventory_policy == 'continue'
+      if closest.product.selected_or_first_available_variant != null
         assign status = 'in_stock'
         assign translation_key = 'content.inventory_in_stock'
       else
         assign status = 'out_of_stock'
         assign translation_key = 'content.inventory_out_of_stock'
       endif
-    endif
-  else
-    if closest.product.selected_or_first_available_variant != null
-      assign status = 'in_stock'
-      assign translation_key = 'content.inventory_in_stock'
-    else
-      assign status = 'out_of_stock'
-      assign translation_key = 'content.inventory_out_of_stock'
     endif
   endif
 -%}
@@ -50,12 +61,8 @@
   {{ block.shopify_attributes }}
   data-product-id="{{ product.id }}"
 >
-  <span
-    class="product-inventory__status"
-  >
-    <span
-      class="svg-wrapper product-inventory__icon product-inventory__icon-{{ status }}"
-    >
+  <span class="product-inventory__status">
+    <span class="svg-wrapper product-inventory__icon product-inventory__icon-{{ status }}">
       {{ 'icon-inventory.svg' | inline_asset_content }}
     </span>
     <span
@@ -64,7 +71,9 @@
       role="status"
       aria-label="{{ 'accessibility.inventory_status' | t }}"
     >
-      {%- if show_quantity -%}
+      {%- if status == 'preorder' -%}
+        Pre-order available
+      {%- elsif show_quantity -%}
         {{ 'content.inventory_low_stock_show_count' | t: count: inventory_quantity }}
       {%- else -%}
         {{- translation_key | t -}}
@@ -72,6 +81,8 @@
     </span>
   </span>
 </product-inventory>
+
+
 
 {% stylesheet %}
   .product-inventory__status {

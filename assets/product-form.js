@@ -258,7 +258,11 @@ class ProductFormComponent extends Component {
               sections: response.sections,
             })
           );
+       
         }
+
+      
+      
       })
       .catch((error) => {
         console.error(error);

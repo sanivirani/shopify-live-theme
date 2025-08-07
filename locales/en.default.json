@@ -173,6 +173,7 @@
     "inventory_low_stock": "Low stock",
     "inventory_in_stock": "In stock",
     "inventory_out_of_stock": "Out of stock",
+     "inventory_preorder": "Pre-order available",
     "item_count": {
       "one": "{{ count }} item",
       "other": "{{ count }} items"
@@ -198,6 +199,7 @@
     "product_information": "Product information",
     "product_total": "Product total",
     "product_badge_sold_out": "Sold out",
+     "pre_sale": "Pre-order Now",
     "product_badge_sale": "Sale",
     "product_card_placeholder": "Product title",
     "placeholder_image": "Placeholder image",
@@ -274,6 +276,8 @@
       "added_to_cart": "Added to cart",
       "add_to_cart_error": "Error adding to cart",
       "sold_out": "Sold out",
+       "pre_sale": "Pre-order Now",
+       "pre_sale_policy": "This item is available for pre-order. It will ship once back in stock.",
       "unavailable": "Unavailable"
     }
   },

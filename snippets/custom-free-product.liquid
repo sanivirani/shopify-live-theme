@@ -1,0 +1,98 @@
+{% comment %} 🎁 Free gift prompt in cart drawer – styled and responsive
+
+{% assign qualifying_variant_id = 50498902261976 %}
+{% assign free_gift_variant_id = 50498751037656 %}
+
+{% assign qualifying_product_in_cart = false %}
+{% assign gift_already_in_cart = false %}
+
+{% for item in cart.items %}
+  {% if item.variant_id == qualifying_variant_id %}
+    {% assign qualifying_product_in_cart = true %}
+  {% endif %}
+  {% if item.variant_id == free_gift_variant_id %}
+    {% assign gift_already_in_cart = true %}
+  {% endif %}
+{% endfor %}
+
+{% if qualifying_product_in_cart and gift_already_in_cart == false %}
+  <div class="free-gift-box fade-in-up">
+    <h3 class="free-gift-heading">🎁 Surprise! A Free Gift Awaits You</h3>
+    <p class="free-gift-text">As a thank you, we're giving you a free product. Click below to claim it!</p>
+    <form method="post" action="{{ routes.cart_add_url }}">
+      <input type="hidden" name="id" value="{{ free_gift_variant_id }}">
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="free-gift-button">Add Free Gift to Cart</button>
+    </form>
+  </div>
+
+  <style>
+    .free-gift-box {
+      background: linear-gradient(135deg, #fff4e6, #ffe5d9);
+      border: 2px dashed #ffa07a;
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin: 24px 16px;
+      text-align: center;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .free-gift-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: #cc5c00;
+      margin-bottom: 10px;
+    }
+
+    .free-gift-text {
+      font-size: 15px;
+      color: #444;
+      margin-bottom: 16px;
+    }
+
+    .free-gift-button {
+      background-color: #ff6b4a;
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .free-gift-button:hover {
+      background-color: #e85c3a;
+      transform: scale(1.03);
+    }
+
+    /* Entrance animation */
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 600px) {
+      .free-gift-box {
+        padding: 16px 12px;
+        margin: 20px 10px;
+      }
+
+      .free-gift-button {
+        width: 100%;
+      }
+
+      .free-gift-heading {
+        font-size: 18px;
+      }
+    }
+  </style>
+{% endif %} {% endcomment %}

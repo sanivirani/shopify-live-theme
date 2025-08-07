@@ -234,9 +234,71 @@
               },
               "blocks": {}
             },
+            "product_inventory_wrkdPn": {
+              "type": "product-inventory",
+              "name": "t:names.product_inventory",
+              "settings": {
+                "inventory_threshold": 5,
+                "show_inventory_quantity": true,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
             "appstle_subscription_appstle_subscription_product_page_widget_XymcjA": {
               "type": "shopify://apps/appstle-subscription/blocks/appstle-subscription-product-page-widget/fe257d39-6f88-4f35-ab08-bd437e3aa94e",
               "settings": {}
+            },
+            "variant_picker_4pxtbJ": {
+              "type": "variant-picker",
+              "name": "t:names.product_variant_picker",
+              "settings": {
+                "variant_style": "buttons",
+                "show_swatches": true,
+                "alignment": "left",
+                "padding-block-start": 0,
+                "padding-block-end": 8,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "ai_gen_block_a142675_ei7K4G": {
+              "type": "ai_gen_block_a142675",
+              "disabled": true,
+              "settings": {
+                "show_icon": true,
+                "show_exact_count": true,
+                "show_progress_bar": true,
+                "show_unit_text": true,
+                "unit_text": "left",
+                "low_stock_threshold": 2,
+                "max_display_quantity": 50,
+                "in_stock_text": "In stock",
+                "low_stock_text": "Only",
+                "out_of_stock_text": "Out of stock",
+                "background_color": "#f8f9fa",
+                "border_color": "#0000000f",
+                "text_color": "#3e3e59",
+                "count_color": "#333333",
+                "in_stock_color": "#28a745",
+                "low_stock_color": "#ffc107",
+                "out_of_stock_color": "#dc3545",
+                "bar_background_color": "#721c37",
+                "bar_width": 100,
+                "bar_height": 4,
+                "bar_border_radius": 2,
+                "padding": 12,
+                "border_radius": 6,
+                "icon_size": 10,
+                "text_size": 14,
+                "text_weight": "400",
+                "mobile_layout": "row",
+                "mobile_gap": 6
+              },
+              "blocks": {}
             },
             "buy_buttons_eYQEYi": {
               "type": "buy-buttons",
@@ -335,7 +397,10 @@
             "ai_gen_block_830fa2f_qR3gW3",
             "ai_gen_block_b006cbf_QEMTJA",
             "ai_gen_block_b58f977_JcFm3D",
+            "product_inventory_wrkdPn",
             "appstle_subscription_appstle_subscription_product_page_widget_XymcjA",
+            "variant_picker_4pxtbJ",
+            "ai_gen_block_a142675_ei7K4G",
             "buy_buttons_eYQEYi",
             "text_qE33DP",
             "ai_gen_block_9a45fe5_wx3gcJ"
@@ -918,7 +983,7 @@
         "feature_TbJxhd": {
           "type": "feature",
           "settings": {
-            "feature_block": "lifestyle-look"
+            "feature_block": "the-self-care-bundle"
           }
         }
       },

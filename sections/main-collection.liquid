@@ -52,7 +52,7 @@
     %}
 
     {% if request.design_mode and shop.products_count == 0 %}
-      {% paginate products by 24 %}
+      {% paginate products by 1 %}
         {% capture children %}
           {% for product in products %}
             <li
@@ -68,23 +68,23 @@
         {% endcapture %}
         {% render 'product-grid', section: section, children: children, products: products, paginate: paginate %}
       {% endpaginate %}
+
     {% else %}
-      {% paginate collection.products by 24 %}
+      {% paginate collection.products by 6 %}
         {% capture children %}
-          {% for product in collection.products %}
-          <li
-            id="{{ section.id }}-{{ product.id }}"
-            class="product-grid__item product-grid__item--{{ forloop.index0 }}"
-            data-page="{{ paginate.current_page }}"
-            data-product-id="{{ product.id }}"
-            ref="cards[]"
-          >
-            {% # theme-check-disable %}
-            {% content_for 'block', type: '_product-card', id: 'product-card', closest.product: product %}
-            {% # theme-check-enable %}
-          </li>
-        {% endfor %}
-        {% endcapture %}
+    {% for product in collection.products %}
+      <li
+        id="{{ section.id }}-{{ product.id }}"
+        class="product-grid__item product-grid__item--{{ forloop.index0 }}"
+        data-page="{{ paginate.current_page }}"
+        data-product-id="{{ product.id }}"
+        ref="cards[]"
+      >
+        {% content_for 'block', type: '_product-card', id: 'product-card', closest.product: product %}
+      </li>
+    {% endfor %}
+  {% endcapture %}
+
         {% render 'product-grid',
           section: section,
           children: children,

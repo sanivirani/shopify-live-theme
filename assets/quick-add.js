@@ -4,6 +4,9 @@ import { CartUpdateEvent, ThemeEvents } from "@theme/events";
 import { DialogComponent, DialogCloseEvent } from "@theme/dialog";
 import { mediaQueryLarge, isMobileBreakpoint } from "@theme/utilities";
 
+const GIFT_VARIANT_ID = "50498751037656"; // ← Your gift variant ID
+
+
 export class QuickAddComponent extends Component {
   /** @type {AbortController | null} */
   #abortController = null;
@@ -66,8 +69,8 @@ export class QuickAddComponent extends Component {
 
     if (!this.#cachedProductHtml) return;
 
-    const freshHtmlCopy = new DOMParser().parseFromString(
-      this.#cachedProductHtml.documentElement.outerHTML,
+      const freshHtmlCopy = new DOMParser().parseFromString(
+        this.#cachedProductHtml.documentElement.outerHTML,
       "text/html"
     );
 
@@ -113,6 +116,8 @@ export class QuickAddComponent extends Component {
 
             // Optionally: show toast manually
             this.#showSuccessToast();
+            this.#addGiftProductIfEligible(); // 🎁 Add gift via AJAX
+
           } else {
             console.warn("Add to cart failed", data);
           }
@@ -152,7 +157,7 @@ export class QuickAddComponent extends Component {
       DialogCloseEvent.eventName,
       () => this.toggleAttribute("stay-visible", false),
       {
-        once: true,
+      once: true,
       }
     );
   }
@@ -258,6 +263,40 @@ export class QuickAddComponent extends Component {
 
     morph(modalContent, productGrid);
   }
+
+   #addGiftProductIfEligible = async () => {
+    try {
+      const cart = await fetch("/cart.js").then((res) => res.json());
+      const giftInCart = cart.items.find(
+        (item) => String(item.variant_id) === GIFT_VARIANT_ID
+      );
+
+      if (giftInCart) return;
+
+      const giftData = new FormData();
+      giftData.append("id", GIFT_VARIANT_ID);
+      giftData.append("quantity", "1");
+      giftData.append("properties[_is_gift]", "true");
+
+      const giftResponse = await fetch("/cart/add.js", {
+        method: "POST",
+        body: giftData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!giftResponse.ok) {
+        console.warn("Gift add failed", await giftResponse.json());
+      } else {
+        console.log("🎁 Gift added successfully");
+      }
+    } catch (err) {
+      console.error("Gift add error", err);
+    }
+  };
+
+
 }
 
 if (!customElements.get("quick-add-component")) {
@@ -312,6 +351,6 @@ class QuickAddDialog extends DialogComponent {
   };
 }
 
-if (!customElements.get("quick-add-dialog")) {
-  customElements.define("quick-add-dialog", QuickAddDialog);
+if (!customElements.get('quick-add-dialog')) {
+  customElements.define('quick-add-dialog', QuickAddDialog);
 }
